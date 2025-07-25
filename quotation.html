@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Get a Lettings Quote | Online Letting Agents Quotation Builder</title>
+  <meta name="description" content="Get a personalised lettings quote in minutes with our online quotation builder.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+  
+  <!-- Open Graph meta tags -->
+  <meta property="og:title" content="Get Your Property Management Quote - Online Letting Agents">
+  <meta property="og:description" content="Get a personalised lettings quote in minutes. Choose from Bronze, Silver, Gold, or Platinum service packages tailored to your needs.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://onlinelettingagents.co.uk/quotation.html">
+  <meta property="og:image" content="https://onlinelettingagents.co.uk/assets/images/quotation/quotation-fill.jpg">
+  
+  <!-- Twitter Card meta tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Get Your Property Management Quote - Online Letting Agents">
+  <meta name="twitter:description" content="Get a personalised lettings quote in minutes with our step-by-step quotation builder.">
+  <meta name="twitter:image" content="https://onlinelettingagents.co.uk/assets/images/quotation/quotation-fill.jpg">
+  
+  <!-- Additional SEO meta tags -->
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://onlinelettingagents.co.uk/quotation.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body data-page="quotation">
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <h2>Online Letting Agents</h2>
+      </div>
+      <ul class="nav-menu" id="nav-menu">
+        <li><a href="index.html#services">Services</a></li>
+        <li><a href="index.html#pricing">Pricing</a></li>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="quotation.html" class="nav-cta">Get Valuation</a></li>
+      </ul>
+      <button class="hamburger" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+  <main>
+    <section class="quotation-builder-section">
+      <div class="quotation-builder-container">
+        <h1 class="section-title" style="text-align:center;">Online Letting Agents Quotation Builder</h1>
+        <!-- Stepper -->
+        <div class="stepper" id="quotationStepper" role="tablist" aria-label="Quotation steps">
+          <div class="step active" data-step="1" role="tab" aria-selected="true" aria-controls="step-1">1. Client Details</div>
+          <div class="step" data-step="2" role="tab" aria-selected="false" aria-controls="step-2">2. Property Details</div>
+          <div class="step" data-step="3" role="tab" aria-selected="false" aria-controls="step-3">3. Licensing & Legal</div>
+          <div class="step" data-step="4" role="tab" aria-selected="false" aria-controls="step-4">4. Service Package</div>
+          <div class="step" data-step="5" role="tab" aria-selected="false" aria-controls="step-5">5. Additional Requirements</div>
+          <div class="step" data-step="6" role="tab" aria-selected="false" aria-controls="step-6">6. Summary & Contact</div>
+        </div>
+        <form id="quotationBuilderForm" method="post" action="/submit-quote">
+          <div class="wizard-viewport" id="wizardViewport">
+                         <!-- Step 1: Client Details -->
+             <section class="quote-step active" id="step-1" role="tabpanel" aria-labelledby="step-1-heading">
+               <h3 id="step-1-heading">Client Details</h3>
+               <div class="form-grid">
+                 <div class="form-group">
+                   <label for="clientName">Landlord / Company Name *</label>
+                   <input type="text" id="clientName" name="clientName" required>
+                 </div>
+                 <div class="form-group">
+                   <label for="companyNumber">Company Number (optional)</label>
+                   <input type="text" id="companyNumber" name="companyNumber">
+                 </div>
+                 <div class="form-group">
+                   <label for="email">Email Address *</label>
+                   <input type="email" id="email" name="email" required>
+                 </div>
+                 <div class="form-group">
+                   <label for="phone">Phone Number *</label>
+                   <input type="tel" id="phone" name="phone" required>
+                 </div>
+                 <div class="form-group">
+                   <label for="contactAddress">Contact Address *</label>
+                   <textarea id="contactAddress" name="contactAddress" required></textarea>
+                 </div>
+                 <div class="form-group">
+                   <label for="howHeard">How did you hear about us?</label>
+                   <input type="text" id="howHeard" name="howHeard">
+                 </div>
+               </div>
+             </section>
+
+             <!-- Step 2: Property Details -->
+             <section class="quote-step" id="step-2" role="tabpanel" aria-labelledby="step-2-heading">
+               <h3 id="step-2-heading">Property Details</h3>
+               <div class="form-grid">
+                 <div class="form-group">
+                   <label for="propertyAddress">Property Address *</label>
+                   <textarea id="propertyAddress" name="propertyAddress" required></textarea>
+                 </div>
+                 <div class="form-group">
+                   <label for="propertyType">Type of Property *</label>
+                   <select id="propertyType" name="propertyType" required>
+                     <option value="">Select...</option>
+                     <option value="detached">Detached</option>
+                     <option value="semi-detached">Semi-detached</option>
+                     <option value="terraced">Terraced</option>
+                     <option value="flat">Flat</option>
+                     <option value="maisonette">Maisonette</option>
+                   </select>
+                 </div>
+                 <div class="form-group">
+                   <label for="bedrooms">Number of Bedrooms *</label>
+                   <input type="number" id="bedrooms" name="bedrooms" min="1" required>
+                 </div>
+                 <div class="form-group">
+                   <label for="bathrooms">Number of Bathrooms</label>
+                   <input type="number" id="bathrooms" name="bathrooms" min="0">
+                 </div>
+                 <div class="form-group">
+                   <label for="yearBuilt">Estimated Year Built</label>
+                   <input type="text" id="yearBuilt" name="yearBuilt" placeholder="e.g. 1990 or 'Not Sure'">
+                 </div>
+                 <div class="form-group">
+                   <label for="currentlyOccupied">Is the property currently occupied?</label>
+                   <select id="currentlyOccupied" name="currentlyOccupied">
+                     <option value="">Select...</option>
+                     <option value="yes">Yes</option>
+                     <option value="no">No</option>
+                   </select>
+                 </div>
+               </div>
+             </section>
+
+             <!-- Step 3: Licensing & Legal -->
+             <section class="quote-step" id="step-3">
+               <h3>Licensing & Legal Requirements</h3>
+               <div class="form-grid">
+                 <div class="form-group">
+                   <label for="hasLicence">Does the property have a property licence?</label>
+                   <select id="hasLicence" name="hasLicence">
+                     <option value="">Select...</option>
+                     <option value="yes">Yes</option>
+                     <option value="no">No</option>
+                     <option value="not-sure">Not Sure</option>
+                   </select>
+                 </div>
+                 <div class="form-group">
+                   <label for="lettingType">Type of Letting</label>
+                   <select id="lettingType" name="lettingType">
+                     <option value="">Select...</option>
+                     <option value="single-family">Single family</option>
+                     <option value="sharers">Sharers</option>
+                     <option value="students">Students</option>
+                     <option value="bedsits">Bedsits</option>
+                     <option value="other">Other</option>
+                   </select>
+                 </div>
+                 <div class="form-group">
+                   <label for="gasAppliances">Are there gas appliances at the property?</label>
+                   <select id="gasAppliances" name="gasAppliances">
+                     <option value="">Select...</option>
+                     <option value="yes">Yes</option>
+                     <option value="no">No</option>
+                   </select>
+                 </div>
+                 <div class="form-group">
+                   <label for="hasEPC">Do you already have a valid EPC?</label>
+                   <select id="hasEPC" name="hasEPC">
+                     <option value="">Select...</option>
+                     <option value="yes">Yes</option>
+                     <option value="no">No</option>
+                     <option value="not-sure">Not Sure</option>
+                   </select>
+                 </div>
+                 <div class="form-group">
+                   <label for="hasEICR">Do you already have a valid EICR?</label>
+                   <select id="hasEICR" name="hasEICR">
+                     <option value="">Select...</option>
+                     <option value="yes">Yes</option>
+                     <option value="no">No</option>
+                     <option value="not-sure">Not Sure</option>
+                   </select>
+                 </div>
+                 <div class="form-group">
+                   <label for="needsLicenceCheck">Do you want us to check if a licence is required?</label>
+                   <select id="needsLicenceCheck" name="needsLicenceCheck">
+                     <option value="">Select...</option>
+                     <option value="yes">Yes</option>
+                     <option value="no">No</option>
+                   </select>
+                 </div>
+               </div>
+             </section>
+
+             <!-- Step 4: Service Package -->
+             <section class="quote-step" id="step-4" role="tabpanel" aria-labelledby="step-4-heading">
+               <h3 id="step-4-heading">Select Your Service Package</h3>
+               <div class="package-selection">
+                 <fieldset>
+                   <legend class="sr-only">Choose your service package</legend>
+                   <div class="package-options package-grid">
+                    <label class="package-option package-card">
+                     <input type="radio" name="package" value="bronze" required aria-describedby="bronze-description">
+                     <div class="package-details">
+                       <i class="fa-solid fa-handshake package-icon" aria-hidden="true"></i>
+                       <span class="package-name">Bronze - Let Only</span>
+                       <span class="package-price">One-time fee</span>
+                       <span class="package-description" id="bronze-description">Perfect for landlords who want to manage the tenancy themselves</span>
+                     </div>
+                   </label>
+                   <label class="package-option package-card">
+                     <input type="radio" name="package" value="silver" required aria-describedby="silver-description">
+                     <div class="package-details">
+                       <i class="fa-solid fa-handshake package-icon" aria-hidden="true"></i>
+                       <span class="package-name">Silver - Rent Collection</span>
+                       <span class="package-price">Monthly fee</span>
+                       <span class="package-description" id="silver-description">Includes rent collection and tenant management</span>
+                     </div>
+                   </label>
+                   <label class="package-option package-card popular-package">
+                     <div class="popular-badge">Most Popular</div>
+                     <input type="radio" name="package" value="gold" required aria-describedby="gold-description">
+                     <div class="package-details">
+                       <i class="fa-solid fa-handshake package-icon" aria-hidden="true"></i>
+                       <span class="package-name">Gold - Fully Managed</span>
+                       <span class="package-price">Monthly fee</span>
+                       <span class="package-description" id="gold-description">Complete property management service</span>
+                     </div>
+                   </label>
+                   <label class="package-option package-card">
+                     <input type="radio" name="package" value="platinum" required aria-describedby="platinum-description">
+                     <div class="package-details">
+                       <i class="fa-solid fa-handshake package-icon" aria-hidden="true"></i>
+                       <span class="package-name">Platinum - Full Management + Protection</span>
+                       <span class="package-price">Monthly fee</span>
+                       <span class="package-description" id="platinum-description">Everything in Gold plus rent and legal protection</span>
+                     </div>
+                   </label>
+                 </div>
+                 </fieldset>
+                 
+                 <fieldset>
+                   <legend>Optional Add-ons</legend>
+                   <div class="addons-grid addon-grid">
+                     <label class="addon-option addon-card">
+                       <input type="checkbox" name="addons" value="epc">
+                       <span>EPC Check (£84)</span>
+                     </label>
+                     <label class="addon-option addon-card">
+                       <input type="checkbox" name="addons" value="gas-safety">
+                       <span>Gas Safety Certificate (£75)</span>
+                     </label>
+                     <label class="addon-option addon-card">
+                       <input type="checkbox" name="addons" value="eicr">
+                       <span>EICR (£180)</span>
+                     </label>
+                     <label class="addon-option addon-card">
+                       <input type="checkbox" name="addons" value="inventory">
+                       <span>Inventory & Schedule (£120-£180)</span>
+                     </label>
+                     <label class="addon-option addon-card">
+                       <input type="checkbox" name="addons" value="licensing">
+                       <span>Licensing Consultancy (£200)</span>
+                     </label>
+                   </div>
+                 </fieldset>
+               </div>
+             </section>
+
+             <!-- Step 5: Additional Requirements -->
+             <section class="quote-step" id="step-5">
+               <h3>Additional Requirements</h3>
+               <div class="form-grid">
+                 <div class="form-group">
+                   <label for="monthlyRent">Expected Monthly Rent (£)</label>
+                   <input type="number" id="monthlyRent" name="monthlyRent" min="0" step="50">
+                 </div>
+                 <div class="form-group">
+                   <label for="moveInDate">Preferred Move-in Date</label>
+                   <input type="date" id="moveInDate" name="moveInDate">
+                 </div>
+                 <div class="form-group">
+                   <label for="tenantType">Preferred Tenant Type</label>
+                   <select id="tenantType" name="tenantType">
+                     <option value="">No preference</option>
+                     <option value="professionals">Professionals</option>
+                     <option value="students">Students</option>
+                     <option value="families">Families</option>
+                     <option value="couples">Couples</option>
+                   </select>
+                 </div>
+                 <div class="form-group">
+                   <label for="specialRequirements">Any special requirements or notes?</label>
+                   <textarea id="specialRequirements" name="specialRequirements" rows="3"></textarea>
+                 </div>
+               </div>
+             </section>
+
+             <!-- Step 6: Summary & Contact -->
+             <section class="quote-step" id="step-6">
+               <h3>Quote Summary & Next Steps</h3>
+               <div class="quote-summary quote-summary-box" id="quoteSummary">
+                 <div class="summary-section">
+                   <h4><strong>Selected Package</strong></h4>
+                   <div id="selectedPackage">Please select a package</div>
+                 </div>
+                 <div class="summary-section">
+                   <h4><strong>Selected Add-ons</strong></h4>
+                   <div id="selectedAddons">None selected</div>
+                 </div>
+                 <div class="summary-section">
+                   <h4><strong>Property Details</strong></h4>
+                   <div id="propertyDetails">Complete previous steps</div>
+                 </div>
+               </div>
+               
+               <div class="form-grid">
+                 <div class="form-group">
+                   <label for="visitDate">Preferred date/time for property visit</label>
+                   <input type="datetime-local" id="visitDate" name="visitDate">
+                 </div>
+                 <div class="form-group">
+                   <label for="contactMethod">Preferred contact method *</label>
+                   <select id="contactMethod" name="contactMethod" required>
+                     <option value="">Select method...</option>
+                     <option value="email">Email</option>
+                     <option value="phone">Phone</option>
+                     <option value="whatsapp">WhatsApp</option>
+                   </select>
+                 </div>
+               </div>
+               
+               <div class="consent-section">
+                 <div class="consent-container">
+                   <label class="consent-label">
+                     <input type="checkbox" name="consent" required class="consent-checkbox">
+                     <span class="consent-text">I consent to being contacted about this quotation and understand that my data will be processed according to the <a href="#" target="_blank" class="privacy-link">Privacy Policy</a></span>
+                   </label>
+                 </div>
+               </div>
+             </section>
+          </div>
+          <!-- Navigation Buttons -->
+          <div class="stepper-actions summary-buttons">
+            <button type="button" class="btn btn-secondary" id="prevStep" disabled>Back</button>
+            <button type="button" class="btn btn-primary" id="nextStep">Next</button>
+            <button type="submit" class="btn btn-primary submit-quote-btn" id="submitQuote" style="display:none;">Submit Quote</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>Online Letting Agents</h3>
+          <p>Professional letting services in Coventry and the Midlands. Expert property management with a focus on compliance and landlord success.</p>
+        </div>
+        <div class="footer-section">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="index.html#services">Let-Only Service</a></li>
+            <li><a href="index.html#services">Fully Managed</a></li>
+            <li><a href="index.html#services">Tenant Referencing</a></li>
+            <li><a href="index.html#services">Rent Collection</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="index.html#about">About Us</a></li>
+            <li><a href="index.html#pricing">Pricing</a></li>
+            <li><a href="quotation.html">Get Quote</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Contact</h4>
+          <p>Email: hello@onlinelettingagents.co.uk</p>
+          <p>Phone: 01234 567890</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 Online Letting Agents. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Persistent Contact Bar -->
+  <div class="contact-bar">
+    <button class="contact-btn" onclick="openBookingModal()"><i class="fas fa-calendar-check"></i> Book</button>
+    <button class="contact-btn" onclick="openCallModal()"><i class="fas fa-phone"></i> Schedule Call</button>
+    <a class="contact-btn" href="https://wa.me/447123456789" target="_blank" rel="noopener" title="Chat on WhatsApp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+    <a class="contact-btn" href="mailto:hello@onlinelettingagents.co.uk"><i class="fas fa-at"></i> Email</a>
+  </div>
+
+  <!-- Branded Chat Bubble (minimized) -->
+  <button id="chat-bubble" aria-label="Open chat with our Lettings Team" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span>Chat</span>
+  </button>
+  
+  <!-- Branded Chat Widget (expanded) -->
+  <div id="chat-widget" role="dialog" aria-modal="true" aria-label="Chat with our Lettings Team">
+    <header>
+      <span>Chat with our Lettings Team</span>
+      <button aria-label="Close chat" id="close-chat-widget">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </header>
+    <div class="messages" id="chat-messages"></div>
+    <footer>
+      <input id="chat-input" type="text" placeholder="Ask us anything about lettings…" autocomplete="off" />
+      <button class="send" id="send-chat" aria-label="Send message">Send</button>
+    </footer>
+  </div>
+
+  <!-- Modal Templates -->
+  <!-- Contact Form Modal -->
+  <div class="modal" id="contactFormModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeContactForm()">&times;</span>
+      <h2>Contact Us</h2>
+      <form id="contactForm">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="email" name="email" placeholder="Your Email" required>
+        <select name="propertyType">
+          <option value="">Property Type (optional)</option>
+          <option value="flat">Flat</option>
+          <option value="house">House</option>
+          <option value="hmo">HMO</option>
+          <option value="commercial">Commercial</option>
+          <option value="other">Other</option>
+        </select>
+        <textarea name="message" placeholder="Your Message" required></textarea>
+        <button type="submit" class="btn btn-primary">Send Message</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Booking Modal -->
+  <div class="modal" id="bookingModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeBookingModal()">&times;</span>
+      <h2>Book a Viewing</h2>
+      <form id="bookingForm">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="email" name="email" placeholder="Your Email" required>
+        <input type="datetime-local" name="datetime" required>
+        <button type="submit" class="btn btn-primary">Book</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Call Scheduling Modal -->
+  <div class="modal" id="callModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeCallModal()">&times;</span>
+      <h2>Schedule a Call</h2>
+      <form id="callForm">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="email" name="email" placeholder="Your Email" required>
+        <input type="tel" name="phone" placeholder="Your Phone Number" required>
+        <input type="datetime-local" name="datetime" required>
+        <button type="submit" class="btn btn-primary">Schedule Call</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html> 
