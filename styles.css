@@ -1014,8 +1014,8 @@ body.no-scroll {
 }
 
 /* Modal specific overrides for existing modals */
-#bookingModal .modal-content,
-#callModal .modal-content,
+#workingBookModal .modal-content,
+#workingCallModal .modal-content,
 #planModal .modal-content,
 #olaQuoteModal .modal-content {
   animation: modalPop 0.25s ease-out;
@@ -3300,5 +3300,577 @@ body.no-scroll {
   
   .consent-section {
     padding: 0.75rem;
+  }
+}
+
+/* Simple Modal Styles */
+.simple-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.simple-modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.simple-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  background: none;
+  border: none;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.simple-close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.simple-modal h2 {
+  margin: 0 0 25px 0;
+  color: var(--green);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: var(--dark-gray);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--light-gray);
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+  justify-content: flex-end;
+}
+
+.form-actions .btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.form-actions .btn-primary {
+  background: var(--green);
+  color: white;
+}
+
+.form-actions .btn-primary:hover {
+  background: var(--green-dark);
+}
+
+.form-actions .btn-secondary {
+  background: #f5f5f5;
+  color: var(--dark-gray);
+}
+
+.form-actions .btn-secondary:hover {
+  background: #e8e8e8;
+}
+
+/* Legacy Booking and Call Modal Styles */
+.booking-steps,
+.call-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.booking-step,
+.call-step {
+  display: none;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.booking-step.active,
+.call-step.active {
+  display: block;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Calendar Styles */
+.calendar-container {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.calendar-nav {
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s ease;
+}
+
+.calendar-nav:hover {
+  background: var(--green-dark);
+}
+
+.calendar-header h4 {
+  margin: 0;
+  color: var(--green);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.calendar-day:hover {
+  background: var(--cream);
+  color: var(--green);
+}
+
+.calendar-day.selected {
+  background: var(--green);
+  color: white;
+  border-color: var(--green);
+}
+
+.calendar-day.disabled {
+  color: var(--light-gray);
+  cursor: not-allowed;
+}
+
+.calendar-day.today {
+  border-color: var(--green);
+  font-weight: 600;
+}
+
+.calendar-day.other-month {
+  color: var(--light-gray);
+}
+
+/* Time Slots */
+.time-slots,
+.call-time-slots {
+  margin-top: 20px;
+}
+
+.time-slots h4,
+.call-time-slots h4 {
+  margin-bottom: 16px;
+  color: var(--green);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.time-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+.time-slot {
+  background: var(--white);
+  border: 2px solid var(--light-gray);
+  border-radius: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.time-slot:hover {
+  border-color: var(--green);
+  background: var(--cream);
+  color: var(--green);
+}
+
+.time-slot.selected {
+  background: var(--green);
+  color: white;
+  border-color: var(--green);
+}
+
+.time-slot.disabled {
+  background: var(--light-gray);
+  color: var(--medium-gray);
+  cursor: not-allowed;
+  border-color: var(--light-gray);
+}
+
+/* Booking Actions */
+.booking-actions,
+.call-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--light-gray);
+}
+
+.booking-actions .btn,
+.call-actions .btn {
+  flex: 1;
+  max-width: 150px;
+}
+
+/* Summary Styles */
+.booking-summary,
+.call-summary {
+  background: var(--cream);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.booking-summary h4,
+.call-summary h4 {
+  color: var(--green);
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.summary-label {
+  font-weight: 500;
+  color: var(--medium-gray);
+}
+
+.summary-value {
+  font-weight: 600;
+  color: var(--green);
+}
+
+/* Success Message */
+.success-message {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.success-message i {
+  font-size: 48px;
+  color: var(--green);
+  margin-bottom: 20px;
+}
+
+.success-message h3 {
+  color: var(--green);
+  margin-bottom: 16px;
+  font-size: 24px;
+}
+
+.success-message p {
+  color: var(--medium-gray);
+  line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .calendar-container {
+    padding: 16px;
+  }
+  
+  .calendar-day {
+    font-size: 12px;
+  }
+  
+  .time-grid {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 8px;
+  }
+  
+  .time-slot {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .booking-actions,
+  .call-actions {
+    flex-direction: column;
+  }
+  
+  .booking-actions .btn,
+  .call-actions .btn {
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-grid {
+    gap: 2px;
+  }
+  
+  .calendar-day {
+    font-size: 11px;
+  }
+  
+  .time-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Enhanced Modal Styling for Working Modals */
+#workingBookModal .modal-content,
+#workingCallModal .modal-content {
+  max-width: 500px;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 1px solid #e9ecef;
+}
+
+#workingBookModal h2,
+#workingCallModal h2 {
+  color: var(--green);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+#workingBookModal h2 i,
+#workingCallModal h2 i {
+  font-size: 1.25rem;
+  color: var(--green);
+}
+
+#workingBookModal .form-group,
+#workingCallModal .form-group {
+  margin-bottom: 1.25rem;
+}
+
+#workingBookModal label,
+#workingCallModal label {
+  display: block;
+  font-weight: 600;
+  color: var(--dark-gray);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+#workingBookModal input,
+#workingCallModal input,
+#workingBookModal select,
+#workingCallModal select,
+#workingBookModal textarea,
+#workingCallModal textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  background: #ffffff;
+}
+
+#workingBookModal input:focus,
+#workingCallModal input:focus,
+#workingBookModal select:focus,
+#workingCallModal select:focus,
+#workingBookModal textarea:focus,
+#workingCallModal textarea:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
+}
+
+#workingBookModal input::placeholder,
+#workingCallModal input::placeholder,
+#workingBookModal textarea::placeholder,
+#workingCallModal textarea::placeholder {
+  color: #6c757d;
+  font-style: italic;
+}
+
+#workingBookModal .form-actions,
+#workingCallModal .form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: flex-end;
+}
+
+#workingBookModal .btn,
+#workingCallModal .btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+#workingBookModal .btn-primary,
+#workingCallModal .btn-primary {
+  background: var(--green);
+  color: white;
+}
+
+#workingBookModal .btn-primary:hover,
+#workingCallModal .btn-primary:hover {
+  background: var(--green-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(44, 85, 48, 0.3);
+}
+
+#workingBookModal .btn-secondary,
+#workingCallModal .btn-secondary {
+  background: #f8f9fa;
+  color: var(--dark-gray);
+  border: 2px solid #e9ecef;
+}
+
+#workingBookModal .btn-secondary:hover,
+#workingCallModal .btn-secondary:hover {
+  background: #e9ecef;
+  border-color: #dee2e6;
+}
+
+/* Modal Animation */
+#workingBookModal,
+#workingCallModal {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive Modal */
+@media (max-width: 768px) {
+  #workingBookModal .modal-content,
+  #workingCallModal .modal-content {
+    margin: 1rem;
+    padding: 1.5rem;
+    max-width: calc(100% - 2rem);
+  }
+  
+  #workingBookModal .form-actions,
+  #workingCallModal .form-actions {
+    flex-direction: column;
+  }
+  
+  #workingBookModal .btn,
+  #workingCallModal .btn {
+    width: 100%;
   }
 }

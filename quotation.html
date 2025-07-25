@@ -398,85 +398,166 @@
 
   <!-- Persistent Contact Bar -->
   <div class="contact-bar">
-    <button class="contact-btn" onclick="openBookingModal()"><i class="fas fa-calendar-check"></i> Book</button>
-    <button class="contact-btn" onclick="openCallModal()"><i class="fas fa-phone"></i> Schedule Call</button>
+    <button class="contact-btn" id="bookBtn"><i class="fas fa-calendar-check"></i> Book</button>
+    <button class="contact-btn" id="callBtn"><i class="fas fa-phone"></i> Schedule Call</button>
     <a class="contact-btn" href="https://wa.me/447123456789" target="_blank" rel="noopener" title="Chat on WhatsApp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
     <a class="contact-btn" href="mailto:hello@onlinelettingagents.co.uk"><i class="fas fa-at"></i> Email</a>
   </div>
 
-  <!-- Branded Chat Bubble (minimized) -->
-  <button id="chat-bubble" aria-label="Open chat with our Lettings Team" type="button">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    <span>Chat</span>
-  </button>
-  
-  <!-- Branded Chat Widget (expanded) -->
-  <div id="chat-widget" role="dialog" aria-modal="true" aria-label="Chat with our Lettings Team">
-    <header>
-      <span>Chat with our Lettings Team</span>
-      <button aria-label="Close chat" id="close-chat-widget">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </header>
-    <div class="messages" id="chat-messages"></div>
-    <footer>
-      <input id="chat-input" type="text" placeholder="Ask us anything about lettings…" autocomplete="off" />
-      <button class="send" id="send-chat" aria-label="Send message">Send</button>
-    </footer>
-  </div>
-
-  <!-- Modal Templates -->
-  <!-- Contact Form Modal -->
-  <div class="modal" id="contactFormModal">
+  <!-- Working Book Modal -->
+  <div class="modal" id="workingBookModal" style="display:none;">
     <div class="modal-content">
-      <span class="close" onclick="closeContactForm()">&times;</span>
-      <h2>Contact Us</h2>
-      <form id="contactForm">
-        <input type="text" name="name" placeholder="Your Name" required>
-        <input type="email" name="email" placeholder="Your Email" required>
-        <select name="propertyType">
-          <option value="">Property Type (optional)</option>
-          <option value="flat">Flat</option>
-          <option value="house">House</option>
-          <option value="hmo">HMO</option>
-          <option value="commercial">Commercial</option>
-          <option value="other">Other</option>
-        </select>
-        <textarea name="message" placeholder="Your Message" required></textarea>
-        <button type="submit" class="btn btn-primary">Send Message</button>
+      <span class="close" onclick="closeWorkingBookModal()">&times;</span>
+      <h2><i class="fas fa-calendar-check"></i> Book Appointment</h2>
+      <form onsubmit="submitWorkingBooking(event)">
+        <div class="form-group">
+          <label for="booking-name">Full Name *</label>
+          <input type="text" id="booking-name" name="name" placeholder="Enter your full name" required>
+        </div>
+        <div class="form-group">
+          <label for="booking-email">Email Address *</label>
+          <input type="email" id="booking-email" name="email" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="booking-phone">Phone Number *</label>
+          <input type="tel" id="booking-phone" name="phone" placeholder="Enter your phone number" required>
+        </div>
+        <div class="form-group">
+          <label for="booking-date">Preferred Date *</label>
+          <input type="date" id="booking-date" name="date" required>
+        </div>
+        <div class="form-group">
+          <label for="booking-time">Preferred Time *</label>
+          <select id="booking-time" name="time" required>
+            <option value="">Select a time</option>
+            <option value="09:00">9:00 AM</option>
+            <option value="10:00">10:00 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="14:00">2:00 PM</option>
+            <option value="15:00">3:00 PM</option>
+            <option value="16:00">4:00 PM</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="booking-message">Additional Notes</label>
+          <textarea id="booking-message" name="message" placeholder="Any special requirements or questions..." rows="3"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeWorkingBookModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Book Appointment</button>
+        </div>
       </form>
     </div>
   </div>
 
-  <!-- Booking Modal -->
-  <div class="modal" id="bookingModal">
+  <!-- Working Call Modal -->
+  <div class="modal" id="workingCallModal" style="display:none;">
     <div class="modal-content">
-      <span class="close" onclick="closeBookingModal()">&times;</span>
-      <h2>Book a Viewing</h2>
-      <form id="bookingForm">
-        <input type="text" name="name" placeholder="Your Name" required>
-        <input type="email" name="email" placeholder="Your Email" required>
-        <input type="datetime-local" name="datetime" required>
-        <button type="submit" class="btn btn-primary">Book</button>
+      <span class="close" onclick="closeWorkingCallModal()">&times;</span>
+      <h2><i class="fas fa-phone"></i> Schedule Call</h2>
+      <form onsubmit="submitWorkingCall(event)">
+        <div class="form-group">
+          <label for="call-name">Full Name *</label>
+          <input type="text" id="call-name" name="name" placeholder="Enter your full name" required>
+        </div>
+        <div class="form-group">
+          <label for="call-email">Email Address *</label>
+          <input type="email" id="call-email" name="email" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="call-phone">Phone Number *</label>
+          <input type="tel" id="call-phone" name="phone" placeholder="Enter your phone number" required>
+        </div>
+        <div class="form-group">
+          <label for="call-time">Preferred Call Time *</label>
+          <select id="call-time" name="time" required>
+            <option value="">Select a time</option>
+            <option value="09:00">9:00 AM</option>
+            <option value="10:00">10:00 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="14:00">2:00 PM</option>
+            <option value="15:00">3:00 PM</option>
+            <option value="16:00">4:00 PM</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="call-subject">Call Subject *</label>
+          <select id="call-subject" name="subject" required>
+            <option value="">What would you like to discuss?</option>
+            <option value="property-management">Property Management</option>
+            <option value="hmo-licensing">HMO Licensing</option>
+            <option value="tenant-screening">Tenant Screening</option>
+            <option value="rent-collection">Rent Collection</option>
+            <option value="compliance">Compliance & Safety</option>
+            <option value="general">General Inquiry</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="call-message">Additional Details</label>
+          <textarea id="call-message" name="message" placeholder="Please provide any additional context for our call..." rows="3"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeWorkingCallModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Schedule Call</button>
+        </div>
       </form>
     </div>
   </div>
-
-  <!-- Call Scheduling Modal -->
-  <div class="modal" id="callModal">
-    <div class="modal-content">
-      <span class="close" onclick="closeCallModal()">&times;</span>
-      <h2>Schedule a Call</h2>
-      <form id="callForm">
-        <input type="text" name="name" placeholder="Your Name" required>
-        <input type="email" name="email" placeholder="Your Email" required>
-        <input type="tel" name="phone" placeholder="Your Phone Number" required>
-        <input type="datetime-local" name="datetime" required>
-        <button type="submit" class="btn btn-primary">Schedule Call</button>
-      </form>
-    </div>
-  </div>
-
+  <script>
+    // Modal Functions
+    function openBookingModal() {
+      const modal = document.getElementById("workingBookModal");
+      if (modal) {
+        modal.style.display = "flex";
+      }
+    }
+    function closeWorkingBookModal() {
+      const modal = document.getElementById("workingBookModal");
+      if (modal) {
+        modal.style.display = "none";
+      }
+    }
+    function openCallModal() {
+      const modal = document.getElementById("workingCallModal");
+      if (modal) {
+        modal.style.display = "flex";
+      }
+    }
+    function closeWorkingCallModal() {
+      const modal = document.getElementById("workingCallModal");
+      if (modal) {
+        modal.style.display = "none";
+      }
+    }
+    function submitWorkingBooking(event) {
+      event.preventDefault();
+      alert("Thank you! Your appointment request has been submitted. We'll contact you shortly to confirm.");
+      closeWorkingBookModal();
+    }
+    function submitWorkingCall(event) {
+      event.preventDefault();
+      alert("Thank you! Your call has been scheduled. We'll contact you at the requested time.");
+      closeWorkingCallModal();
+    }
+    // Connect buttons by ID
+    document.addEventListener("DOMContentLoaded", () => {
+      const bookBtn = document.getElementById("bookBtn");
+      const callBtn = document.getElementById("callBtn");
+      
+      if (bookBtn) {
+        bookBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          openBookingModal();
+        });
+      }
+      if (callBtn) {
+        callBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          openCallModal();
+        });
+      }
+    });
+  </script>
   <script src="script.js"></script>
 </body>
 </html> 

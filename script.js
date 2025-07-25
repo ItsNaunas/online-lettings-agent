@@ -1,6 +1,14 @@
-// Global Variables
-// var currentQuoteStep = 0;  // REMOVED - now encapsulated in module
-// var totalQuoteSteps = 6;   // REMOVED - now calculated dynamically
+// Online Letting Agents - Main Application
+console.log('🚀 Online Letting Agents script loading...');
+
+// Test function to verify JavaScript is working
+function testJavaScript() {
+  console.log('✅ JavaScript is working!');
+  return true;
+}
+
+// Call test function
+testJavaScript();
 
 // Main Application Module - encapsulates all functionality to avoid global pollution
 const OnlineLettingAgents = (() => {
@@ -63,34 +71,35 @@ const OnlineLettingAgents = (() => {
             initNavbarScroll();
         }
         
-        // Smooth scrolling for navigation links
+        // Initialize smooth scrolling for anchor links
         initSmoothScrolling();
     }
     
     function toggleMobileMenu() {
         const hamburger = document.querySelector('.hamburger');
         const navMenu = document.querySelector('.nav-menu');
-        const isExpanded = navMenu.classList.contains('active');
         
-        navMenu.classList.toggle('active');
-        hamburger.classList.toggle('active');
-        hamburger.setAttribute('aria-expanded', !isExpanded);
+        if (hamburger && navMenu) {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            
+            // Update ARIA attributes
+            const isExpanded = hamburger.classList.contains('active');
+            hamburger.setAttribute('aria-expanded', isExpanded);
+        }
     }
     
     function handleOutsideClick(e) {
         const hamburger = document.querySelector('.hamburger');
         const navMenu = document.querySelector('.nav-menu');
         
-        if (hamburger && navMenu && 
-            !hamburger.contains(e.target) && 
-            !navMenu.contains(e.target)) {
+        if (navMenu && hamburger && !hamburger.contains(e.target) && !navMenu.contains(e.target)) {
             closeMobileMenu();
         }
     }
     
     function handleEscapeKey(e) {
-        const navMenu = document.querySelector('.nav-menu');
-        if (e.key === 'Escape' && navMenu?.classList.contains('active')) {
+        if (e.key === 'Escape') {
             closeMobileMenu();
         }
     }
@@ -100,42 +109,37 @@ const OnlineLettingAgents = (() => {
         const navMenu = document.querySelector('.nav-menu');
         
         if (hamburger && navMenu) {
-            navMenu.classList.remove('active');
             hamburger.classList.remove('active');
+            navMenu.classList.remove('active');
             hamburger.setAttribute('aria-expanded', 'false');
         }
     }
     
     function initNavbarScroll() {
-        const navbar = document.querySelector('.navbar');
-        if (!navbar) return;
-        
-        let lastScrollTop = 0;
         window.addEventListener('scroll', () => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
-            if (scrollTop > lastScrollTop && scrollTop > 100) {
-                navbar.style.transform = 'translateY(-100%)';
-            } else {
-                navbar.style.transform = 'translateY(0)';
+            const navbar = document.querySelector('.navbar');
+            if (navbar) {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
             }
-            lastScrollTop = scrollTop;
         });
     }
     
     function initSmoothScrolling() {
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
-                const hash = this.getAttribute('href');
-                if (hash === '#' || hash.length <= 1) return;
-                
-                const target = document.querySelector(hash);
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
-                    e.preventDefault();
                     target.scrollIntoView({
                         behavior: 'smooth',
                         block: 'start'
                     });
+                    // Close mobile menu if open
+                    closeMobileMenu();
                 }
             });
         });
@@ -152,35 +156,31 @@ const OnlineLettingAgents = (() => {
         initContactBar();
     }
     
-    // Initialize testimonials functionality
     function initTestimonials() {
-        // Testimonials are already initialized below - this consolidates the logic
+        // Testimonials functionality is handled by global functions
         console.log('Testimonials initialized');
     }
     
-    // Initialize properties carousel
     function initPropertiesCarousel() {
-        // Properties carousel is already initialized below - this consolidates the logic  
+        // Properties carousel functionality is handled by global functions
         console.log('Properties carousel initialized');
     }
     
-    // Initialize pricing tabs
     function initPricingTabs() {
+        // Pricing tabs functionality is handled by global functions
         console.log('Pricing tabs initialized');
     }
     
-    // Initialize FAQ functionality
     function initFAQ() {
-        // FAQ is already initialized below - this consolidates the logic
+        // FAQ functionality is handled by global functions
         console.log('FAQ initialized');
     }
     
-    // Initialize modals
     function initModals() {
-        console.log('Modals initialized');
+        // Modal functionality is now handled by the new working modals
+        console.log('Working modals initialized');
     }
     
-    // Initialize chat functionality
     function initChat() {
         const chatBubble = document.getElementById('chat-bubble');
         const chatWidget = document.getElementById('chat-widget');
@@ -188,8 +188,8 @@ const OnlineLettingAgents = (() => {
         
         if (chatBubble && chatWidget) {
             chatBubble.addEventListener('click', () => {
-                chatWidget.style.display = 'block';
                 chatBubble.style.display = 'none';
+                chatWidget.style.display = 'block';
             });
             
             if (closeChatBtn) {
@@ -901,13 +901,16 @@ const QuotationWizard = (() => {
 
 // Modal Management System
 function openModal(modal) {
+  console.log('🔍 openModal called with:', modal);
+  
   if (!modal) {
-    console.error('openModal called with null/undefined modal');
+    console.error('❌ openModal called with null/undefined modal');
     return;
   }
   
-  console.log('Opening modal:', modal);
-  console.log('Modal computed style before:', window.getComputedStyle(modal).display);
+  console.log('🔍 Modal computed style before:', window.getComputedStyle(modal).display);
+  console.log('🔍 Modal visibility before:', window.getComputedStyle(modal).visibility);
+  console.log('🔍 Modal opacity before:', window.getComputedStyle(modal).opacity);
   
   modal.classList.add('is-open');
   modal.style.display = 'flex';
@@ -916,14 +919,18 @@ function openModal(modal) {
   modal.style.zIndex = '9999';
   document.body.classList.add('no-scroll');
   
-  console.log('Modal computed style after:', window.getComputedStyle(modal).display);
-  console.log('Modal is-open class:', modal.classList.contains('is-open'));
+  console.log('🔍 Modal computed style after:', window.getComputedStyle(modal).display);
+  console.log('🔍 Modal visibility after:', window.getComputedStyle(modal).visibility);
+  console.log('🔍 Modal opacity after:', window.getComputedStyle(modal).opacity);
+  console.log('🔍 Modal is-open class:', modal.classList.contains('is-open'));
+  console.log('🔍 Body no-scroll class:', document.body.classList.contains('no-scroll'));
   
   // Safety check - if modal isn't visible after 100ms, unfreeze
   setTimeout(() => {
     const isVisible = window.getComputedStyle(modal).display !== 'none';
+    console.log('🔍 Safety check - modal visible:', isVisible);
     if (!isVisible) {
-      console.error('Modal failed to display! Unfreezing page...');
+      console.error('❌ Modal failed to display! Unfreezing page...');
       document.body.classList.remove('no-scroll');
       modal.classList.remove('is-open');
     }
@@ -932,7 +939,10 @@ function openModal(modal) {
   // Focus first input or button
   setTimeout(() => {
     const firstFocusable = modal.querySelector('input, button, select, textarea');
-    if (firstFocusable) firstFocusable.focus();
+    if (firstFocusable) {
+      console.log('🔍 Focusing first focusable element:', firstFocusable);
+      firstFocusable.focus();
+    }
   }, 10);
 }
 
@@ -961,37 +971,6 @@ document.querySelectorAll('.modal').forEach(modal => {
     }
   });
 });
-
-// Updated modal functions
-function openBookingModal() {
-  console.log('Trying to open bookingModal...', document.getElementById('bookingModal'));
-  const modal = document.getElementById('bookingModal');
-  if (!modal) {
-    console.error('Booking modal not found!');
-    return;
-  }
-  openModal(modal);
-}
-
-function closeBookingModal() {
-  const modal = document.getElementById('bookingModal');
-  closeModal(modal);
-}
-
-function openCallModal() {
-  console.log('Trying to open callModal...', document.getElementById('callModal'));
-  const modal = document.getElementById('callModal');
-  if (!modal) {
-    console.error('Call modal not found!');
-    return;
-  }
-  openModal(modal);
-}
-
-function closeCallModal() {
-  const modal = document.getElementById('callModal');
-  closeModal(modal);
-}
 
 // Emergency unfreeze function - call this in console if page freezes
 function emergencyUnfreeze() {
