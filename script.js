@@ -1703,6 +1703,8 @@ document.addEventListener('DOMContentLoaded', function() {
       preferredTime: document.getElementById('preferredTime')?.value || ''
     };
 
+    console.log('Submitting to Google Sheets:', formData); // <-- Debug log
+
     try {
       await fetch('https://script.google.com/macros/s/AKfycbz8C_aMmBqpgeY7LEwn-PGJJUDZuQIYQ6qNPecCklS1qThtQvpiWR2edOUMlHcR_cce/exec', {
         method: 'POST',
