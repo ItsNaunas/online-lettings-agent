@@ -1660,3 +1660,66 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('Summary and consent section enhancements applied');
 }); 
 
+// --- GOOGLE SHEETS QUOTATION FORM SUBMISSION ---
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('quotationBuilderForm');
+  if (!form) return;
+
+  // Add error and loading elements if not present
+  let errorDiv = document.getElementById('form-error');
+  if (!errorDiv) {
+    errorDiv = document.createElement('div');
+    errorDiv.id = 'form-error';
+    errorDiv.style.color = 'red';
+    errorDiv.style.marginTop = '10px';
+    form.parentNode.insertBefore(errorDiv, form.nextSibling);
+  }
+  let loadingDiv = document.getElementById('form-loading');
+  if (!loadingDiv) {
+    loadingDiv = document.createElement('div');
+    loadingDiv.id = 'form-loading';
+    loadingDiv.style.marginTop = '10px';
+    loadingDiv.style.display = 'none';
+    loadingDiv.textContent = 'Submitting...';
+    form.parentNode.insertBefore(loadingDiv, errorDiv.nextSibling);
+  }
+
+  const submitBtn = document.getElementById('submitQuote');
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    errorDiv.textContent = '';
+    loadingDiv.style.display = 'block';
+    if (submitBtn) submitBtn.disabled = true;
+
+    // Collect form data
+    const formData = {
+      clientName: document.getElementById('clientName')?.value || '',
+      email: document.getElementById('email')?.value || '',
+      phone: document.getElementById('phone')?.value || '',
+      contactAddress: document.getElementById('contactAddress')?.value || '',
+      servicePackage: document.getElementById('servicePackage')?.value || '',
+      preferredDate: document.getElementById('preferredDate')?.value || '',
+      preferredTime: document.getElementById('preferredTime')?.value || ''
+    };
+
+    try {
+      await fetch('https://script.google.com/macros/s/AKfycbz8C_aMmBqpgeY7LEwn-PGJJUDZuQIYQ6qNPecCklS1qThtQvpiWR2edOUMlHcR_cce/exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        mode: 'no-cors',
+        body: JSON.stringify(formData)
+      });
+      form.reset();
+      loadingDiv.style.display = 'none';
+      if (submitBtn) submitBtn.disabled = false;
+      alert('Your quotation request has been submitted!');
+    } catch (err) {
+      loadingDiv.style.display = 'none';
+      if (submitBtn) submitBtn.disabled = false;
+      errorDiv.textContent = 'There was an error submitting your request. Please try again.';
+      console.error('Quotation form error:', err);
+    }
+  });
+}); 
+
