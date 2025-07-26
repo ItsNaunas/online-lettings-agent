@@ -4,9 +4,8 @@
   "description": "Quotation form with CORS proxy for Google Apps Script",
   "main": "index.js",
   "dependencies": {
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.7.0"
   },
-  "devDependencies": {},
   "scripts": {
     "build": "echo 'No build step required for static site'"
   },
