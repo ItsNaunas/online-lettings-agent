@@ -9,10 +9,6 @@ const corsHeaders = {
 };
 
 exports.handler = async (event, context) => {
-  console.log('Mock endpoint - Request method:', event.httpMethod);
-  console.log('Mock endpoint - Request headers:', event.headers);
-  console.log('Mock endpoint - Request body:', event.body);
-
   // Handle OPTIONS preflight request
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -27,7 +23,6 @@ exports.handler = async (event, context) => {
     try {
       // Parse the JSON body from the frontend
       const jsonData = JSON.parse(event.body);
-      console.log('Mock endpoint - Parsed JSON data:', jsonData);
 
       // Simulate some processing time
       await new Promise(resolve => setTimeout(resolve, 500));

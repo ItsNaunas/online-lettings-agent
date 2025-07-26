@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+// Node 18+ includes global fetch, no need for node-fetch
 
 // The Google Apps Script URL
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-4wLvdbsYBQiKAcSAcfLfT-DzmJGoOFxUdETrtIprb09b0FXDcGQfqFfyy9IkUqzF/exec';
@@ -11,10 +11,6 @@ const corsHeaders = {
 };
 
 exports.handler = async (event, context) => {
-  console.log('Request method:', event.httpMethod);
-  console.log('Request headers:', event.headers);
-  console.log('Request body:', event.body);
-
   // Handle OPTIONS preflight request
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -29,11 +25,9 @@ exports.handler = async (event, context) => {
     try {
       // Parse the JSON body from the frontend
       const jsonData = JSON.parse(event.body);
-      console.log('Parsed JSON data:', jsonData);
 
       // Re-stringify the JSON to ensure it's well-formed for Apps Script
       const jsonBody = JSON.stringify(jsonData);
-      console.log('Re-stringified JSON body:', jsonBody);
 
       // Forward the request to Google Apps Script as JSON
       const response = await fetch(APPS_SCRIPT_URL, {
@@ -44,12 +38,8 @@ exports.handler = async (event, context) => {
         body: jsonBody,
       });
 
-      console.log('Apps Script response status:', response.status);
-      console.log('Apps Script response headers:', Object.fromEntries(response.headers.entries()));
-
       // Get the response text/json from Apps Script
       const responseText = await response.text();
-      console.log('Apps Script response body:', responseText);
 
       // Check if response is HTML (indicating an error from Google Apps Script)
       if (responseText.trim().startsWith('<!DOCTYPE html>') || responseText.trim().startsWith('<html')) {
@@ -80,8 +70,7 @@ exports.handler = async (event, context) => {
       try {
         responseData = JSON.parse(responseText);
       } catch (parseError) {
-        console.log('Response is not JSON, but also not HTML error. Returning as text');
-        console.log('Parse error:', parseError.message);
+        console.error('Response is not JSON, but also not HTML error. Parse error:', parseError.message);
         responseData = {
           status: 'error',
           message: 'Invalid response format from Google Apps Script',
