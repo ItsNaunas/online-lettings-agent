@@ -1527,7 +1527,13 @@ function renderPackageOptions() {
 
 // Enhanced Package and Add-on Card Interactions
 function enhancePackageAndAddonCards() {
-  if (!window.location.pathname.endsWith('quotation.html')) return;
+  console.log('enhancePackageAndAddonCards called');
+  // Check if we're on the quotation page by looking for quotation-specific elements
+  if (!document.querySelector('.quote-step')) {
+    console.log('No .quote-step found, returning early');
+    return;
+  }
+  console.log('Found .quote-step, proceeding with enhancement');
   
   // 📦 Style and handle package card interactions (both .package-card and .package-option)
   const packageCards = document.querySelectorAll('.package-card, .package-option');
@@ -1592,10 +1598,16 @@ function enhancePackageAndAddonCards() {
   
   // 🧩 Style and handle add-on card interactions (both .addon-card and .addon-option)
   const addOnCards = document.querySelectorAll('.addon-card, .addon-option');
-  addOnCards.forEach(card => {
+  console.log('Found add-on cards:', addOnCards.length);
+  addOnCards.forEach((card, index) => {
+    console.log(`Processing add-on card ${index}:`, card);
     const checkbox = card.querySelector('input[type="checkbox"]');
     
-    if (!checkbox) return;
+    if (!checkbox) {
+      console.log(`No checkbox found in card ${index}`);
+      return;
+    }
+    console.log(`Checkbox found in card ${index}:`, checkbox);
     
     // Make card focusable
     card.setAttribute('tabindex', '0');
@@ -1604,7 +1616,7 @@ function enhancePackageAndAddonCards() {
     
     // Handle card clicks
     card.addEventListener('click', function(e) {
-      console.log('Addon card clicked:', e.target);
+      console.log('Addon card clicked:', e.target, 'Checkbox found:', !!checkbox);
       // Prevent double-firing if clicking directly on checkbox
       if (e.target.type !== 'checkbox') {
         e.preventDefault();
