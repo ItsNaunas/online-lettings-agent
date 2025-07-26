@@ -1,89 +1,68 @@
-// Google Apps Script for Quotation Form Processing
-// This script handles form submissions from the quotation tool
-// and sends email notifications with CSV data to the business
+// Simplified Google Apps Script for Quotation Form Processing
+// Version 5 - Handles form data, no CORS headers needed (handled by Netlify proxy)
 
 function doPost(e) {
-  // Handle CORS preflight and missing data
-  if (!e.postData || !e.postData.contents) {
-    const output = ContentService.createTextOutput(JSON.stringify({ 
-      result: "error", 
-      message: "No data received" 
-    }));
-    output.setMimeType(ContentService.MimeType.JSON);
-    output.setHeader("Access-Control-Allow-Origin", "https://clever-bublanina-1af2bc.netlify.app");
-    output.setHeader("Access-Control-Allow-Methods", "POST");
-    output.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    return output;
-  }
-
   const BUSINESS_EMAIL = "its.naunas@gmail.com";
   const SHEET_ID = "1SjPuWUVLBJlMKRicvHpdCHV2ELKaDduwKCmHQymNQw";
   const SHEET_NAME = "Quotation Submissions";
 
   try {
+    // Handle form data from Netlify proxy
+    const formData = e.parameter;
+    
+    // Log received data for debugging
+    console.log('Received form data:', formData);
+
     const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
-    const data = JSON.parse(e.postData.contents);
 
     const row = [
-      new Date(),                     // Timestamp
-      data.clientName || "",
-      data.email || "",
-      data.phone || "",
-      data.contactAddress || "",
-      data.servicePackage || "",
-      data.preferredDate || "",
-      data.preferredTime || ""
+      new Date(),                          // Timestamp
+      formData.clientName || "",
+      formData.email || "",
+      formData.phone || "",
+      formData.contactAddress || "",
+      formData.servicePackage || "",
+      formData.propertyType || "",
+      formData.propertyAddress || "",
+      formData.propertySize || "",
+      formData.currentCondition || "",
+      formData.renovationScope || "",
+      formData.budget || "",
+      formData.timeline || "",
+      formData.specialRequirements || "",
+      formData.visitDate || "",
+      formData.preferredTime || "",
+      formData.contactMethod || "",
+      formData.consent || ""
     ];
 
     sheet.appendRow(row);
 
-    const csvData = row.map(item => `"${item}"`).join(",") + "\n";
+    // Create CSV for email attachment
+    const csvData = row.map(item => `"${String(item).replace(/"/g, '""')}"`).join(",") + "\n";
     const blob = Utilities.newBlob(csvData, "text/csv", "quotation-submission.csv");
 
+    // Send email with CSV attachment
     MailApp.sendEmail({
       to: BUSINESS_EMAIL,
       subject: "New Quotation Submission",
-      body: "A new client has submitted a quotation form. The CSV is attached.",
+      body: `A new client has submitted a quotation form.\n\nClient Name: ${formData.clientName}\nEmail: ${formData.email}\nPhone: ${formData.phone}\n\nThe full details are in the attached CSV file.`,
       attachments: [blob]
     });
 
-    const successOutput = ContentService.createTextOutput(JSON.stringify({ result: "success" }));
-    successOutput.setMimeType(ContentService.MimeType.JSON);
-    successOutput.setHeader("Access-Control-Allow-Origin", "https://clever-bublanina-1af2bc.netlify.app");
-    successOutput.setHeader("Access-Control-Allow-Methods", "POST");
-    successOutput.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    return successOutput;
+    // Return success response as JSON
+    return ContentService.createTextOutput(JSON.stringify({ 
+      status: "success",
+      message: "Quotation submitted successfully" 
+    })).setMimeType(ContentService.MimeType.JSON);
 
   } catch (error) {
-    const errorOutput = ContentService.createTextOutput(JSON.stringify({ 
-      result: "error", 
+    console.error('Error processing form:', error);
+    
+    // Return error response as JSON
+    return ContentService.createTextOutput(JSON.stringify({ 
+      status: "error", 
       message: error.message 
-    }));
-    errorOutput.setMimeType(ContentService.MimeType.JSON);
-    errorOutput.setHeader("Access-Control-Allow-Origin", "https://clever-bublanina-1af2bc.netlify.app");
-    errorOutput.setHeader("Access-Control-Allow-Methods", "POST");
-    errorOutput.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    return errorOutput;
+    })).setMimeType(ContentService.MimeType.JSON);
   }
-}
-
-// Handle CORS preflight request from browsers
-function doOptions(e) {
-  const output = ContentService.createTextOutput("");
-  output.setMimeType(ContentService.MimeType.TEXT);
-  output.setHeader("Access-Control-Allow-Origin", "https://clever-bublanina-1af2bc.netlify.app");
-  output.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  output.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  return output;
-}
-
-// Handle GET requests (for testing and status check)
-function doGet(e) {
-  const output = ContentService.createTextOutput(JSON.stringify({ 
-    status: 'success', 
-    message: 'Quotation API v3 is running',
-    timestamp: new Date().toISOString()
-  }));
-  output.setMimeType(ContentService.MimeType.JSON);
-  return output;
 }

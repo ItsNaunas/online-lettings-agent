@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 
 // The Google Apps Script URL
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwAb5m_epLiIDJ6UCi-0ETiEYkhJCF63bjjamB3LnLQ2Y4vDewvwD35nxvU44IUDh8V/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyD_wgAwY0i7jnHpbVHRgl3L08Yyvh1VIg5--SdUWrC3vzYxB5qm7_ekggt_KIeSaYz/exec';
 
 // CORS headers to be included in all responses
 const corsHeaders = {
