@@ -1815,8 +1815,8 @@ async function submitQuotationForm(useMockEndpoint = false) {
       throw new Error('Server response error: Invalid response format received from server.');
     }
     
-    if (data.status !== 'success') {
-      throw new Error(data.message || 'Server returned an error');
+    if (data.result !== 'success') {
+      throw new Error(`Server returned an error: ${data.message || 'unknown error'}`);
     }
 
     return data;
