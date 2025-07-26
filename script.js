@@ -1703,9 +1703,6 @@ async function submitQuotationForm() {
   try {
     const response = await fetch(APPS_SCRIPT_ENDPOINT, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
       body: JSON.stringify(formData)
     });
 
