@@ -1669,6 +1669,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
+    console.log("form submission event triggered");
 
     // Collect form data from the specified input IDs
     const visitDateTime = document.getElementById('visitDate')?.value || '';
@@ -1692,17 +1693,36 @@ document.addEventListener('DOMContentLoaded', function() {
       preferredTime: preferredTime
     };
 
-    console.log('Submitting quotation data:', formData);
+    console.log("Sending to Apps Script:", formData);
+    
+    // Check if formData is empty or malformed
+    if (!formData || Object.keys(formData).length === 0) {
+      console.error('FormData is empty or malformed');
+      alert('Please fill in all required fields before submitting.');
+      return;
+    }
+    
+    // Check for required fields
+    const requiredFields = ['clientName', 'email', 'phone', 'servicePackage'];
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    if (missingFields.length > 0) {
+      console.error('Missing required fields:', missingFields);
+      alert('Please fill in all required fields before submitting.');
+      return;
+    }
 
     try {
       const response = await fetch('https://script.google.com/macros/s/AKfycbzAiBP4yIUEy8WI5sG6ud8wUYY7BmoEVQ7uOdeA3h1dIt_ndyIvcdS-gBUHsyBaGXgr/exec', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
 
+      // Check if fetch resolved without error
+      console.log('Fetch resolved successfully');
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      
       // On success
       console.log('Form submission response:', response);
       alert('Quotation submitted successfully!');
