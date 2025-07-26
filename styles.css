@@ -3093,9 +3093,9 @@ body.no-scroll {
 /* The viewport containing steps */
 .wizard-viewport{
   position: relative;
-  overflow: visible;
+  overflow-y: auto;
+  max-height: 70vh;
   min-height: 420px;
-  height: auto;
 }
 
 /* Stack all steps on top of each other */
