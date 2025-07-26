@@ -658,7 +658,7 @@ const QuotationWizard = (() => {
         }
 
         try {
-            await submitQuotationForm();
+            await submitWithRetry();
             clearProgress();
             form.reset();
             goToStep(0);
@@ -666,6 +666,32 @@ const QuotationWizard = (() => {
         } catch (error) {
             console.error('Error submitting quotation:', error);
             showErrorModal(error.message || 'There was an error submitting your form.');
+        }
+    }
+
+    // Retry mechanism for form submission
+    async function submitWithRetry(maxRetries = 3) {
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                return await submitQuotationForm();
+            } catch (error) {
+                console.log(`Attempt ${i + 1} failed:`, error.message);
+                
+                // Don't retry on validation errors or user errors
+                if (error.message.includes('validation') || error.message.includes('required')) {
+                    throw error;
+                }
+                
+                // If this is the last attempt, throw the error
+                if (i === maxRetries - 1) {
+                    throw error;
+                }
+                
+                // Wait before retrying (exponential backoff)
+                const delay = Math.min(1000 * Math.pow(2, i), 5000);
+                console.log(`Retrying in ${delay}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
         }
     }
     
@@ -1701,16 +1727,53 @@ async function submitQuotationForm() {
   console.log('Sending to Apps Script:', formData);
 
   try {
-    const response = await fetch(APPS_SCRIPT_ENDPOINT, {
-      method: 'POST',
-      body: JSON.stringify(formData)
+    // Validate and sanitize data before sending
+    const sanitizedData = {};
+    Object.keys(formData).forEach(key => {
+      let value = formData[key];
+      
+      // Convert boolean to string for form data
+      if (typeof value === 'boolean') {
+        value = value ? 'true' : 'false';
+      }
+      
+      // Convert null/undefined to empty string
+      if (value === null || value === undefined) {
+        value = '';
+      }
+      
+      // Convert to string and trim
+      value = String(value).trim();
+      
+      sanitizedData[key] = value;
     });
 
+    // Convert sanitized data to URL-encoded form data to avoid CORS preflight
+    const formBody = new URLSearchParams();
+    Object.keys(sanitizedData).forEach(key => {
+      formBody.append(key, sanitizedData[key]);
+    });
+
+    console.log('Form body prepared:', formBody.toString());
+
+    const response = await fetch(APPS_SCRIPT_ENDPOINT, {
+      method: 'POST',
+      body: formBody
+      // No Content-Type header - browser will set it to application/x-www-form-urlencoded
+    });
+
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Server error response:', errorText);
       throw new Error(`Server error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
+    console.log('Response data:', data);
+    
     if (data.status !== 'success') {
       throw new Error(data.message || 'Server returned an error');
     }
@@ -1719,13 +1782,24 @@ async function submitQuotationForm() {
   } catch (error) {
     console.error('Form submission error:', error);
     
-    // Provide specific error messages for common issues
+    // Enhanced error detection and messaging
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      throw new Error('Network error: Unable to connect to the server. Please check your internet connection and try again.');
+      // Check for specific network issues
+      if (error.message.includes('Failed to fetch')) {
+        throw new Error('Connection failed: Unable to reach the server. Please check your internet connection and try again.');
+      } else if (error.message.includes('NetworkError')) {
+        throw new Error('Network error: Unable to connect to the server. Please check your internet connection and try again.');
+      } else {
+        throw new Error('Network error: Unable to connect to the server. Please check your internet connection and try again.');
+      }
     } else if (error.message.includes('CORS')) {
       throw new Error('CORS error: The server is not accepting requests from this domain. Please contact support.');
-    } else if (error.message.includes('Failed to fetch')) {
-      throw new Error('Connection failed: Unable to reach the server. Please try again in a few moments.');
+    } else if (error.message.includes('timeout')) {
+      throw new Error('Request timeout: The server took too long to respond. Please try again.');
+    } else if (error.message.includes('quota')) {
+      throw new Error('Service temporarily unavailable: Server quota exceeded. Please try again later.');
+    } else if (error.message.includes('execution')) {
+      throw new Error('Server execution error: The server encountered an internal error. Please try again.');
     } else {
       throw new Error(`Submission error: ${error.message}`);
     }
