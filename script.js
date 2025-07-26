@@ -660,12 +660,12 @@ const QuotationWizard = (() => {
         try {
             await submitQuotationForm();
             clearProgress();
-            showSuccessModal();
             form.reset();
             goToStep(0);
+            showSuccessModal();
         } catch (error) {
             console.error('Error submitting quotation:', error);
-            alert('There was an error submitting your form.');
+            showErrorModal(error.message || 'There was an error submitting your form.');
         }
     }
     
@@ -871,6 +871,36 @@ const QuotationWizard = (() => {
         
         modal.querySelector('.close').onclick = closeModal;
         modal.querySelector('#closeSuccessModal').onclick = closeModal;
+    }
+
+    function showErrorModal(message) {
+        let modal = document.getElementById('quoteErrorModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'quoteErrorModal';
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width:400px;text-align:center;">
+                    <button class="close" aria-label="Close">&times;</button>
+                    <h2>Submission Error</h2>
+                    <p id="quoteErrorText">There was an error submitting your form.</p>
+                    <button class="btn btn-primary" id="closeErrorModal">Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        modal.querySelector('#quoteErrorText').textContent = message;
+        modal.style.display = 'flex';
+        document.body.classList.add('no-scroll');
+
+        const closeModal = () => {
+            modal.style.display = 'none';
+            document.body.classList.remove('no-scroll');
+        };
+
+        modal.querySelector('.close').onclick = closeModal;
+        modal.querySelector('#closeErrorModal').onclick = closeModal;
     }
     
     // Public API
@@ -1664,14 +1694,29 @@ function collectFormData() {
   };
 }
 
+const APPS_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzU4-ogJtHai4_47RTGqkbJ1VofNIQcbGonDTuBoo-NI2BNX3zYHszqbIO1lUI0t5QZ/exec';
+
 async function submitQuotationForm() {
   const formData = collectFormData();
   console.log('Sending to Apps Script:', formData);
 
-  await fetch('https://script.google.com/macros/s/AKfycbzAiBP4yIUEy8WI5sG6ud8wUYY7BmoEVQ7uOdeA3h1dIt_ndyIvcdS-gBUHsyBaGXgr/exec', {
+  const response = await fetch(APPS_SCRIPT_ENDPOINT, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify(formData)
   });
+
+  if (!response.ok) {
+    throw new Error(`Network response was not ok (${response.status})`);
+  }
+
+  const data = await response.json();
+  if (data.status !== 'success') {
+    throw new Error(data.message || 'Unknown error');
+  }
+
+  return data;
 }
 
