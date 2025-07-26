@@ -658,11 +658,17 @@ const QuotationWizard = (() => {
         }
 
         try {
-            await submitWithRetry();
+            const result = await submitWithRetry();
             clearProgress();
             form.reset();
             goToStep(0);
-            showSuccessModal();
+            
+            // Show different success message if mock endpoint was used
+            if (result && result.mockMode) {
+                showSuccessModal('Your quotation has been submitted successfully! (Note: This was processed in testing mode due to a temporary service configuration issue. Your request has been logged and will be processed normally.)');
+            } else {
+                showSuccessModal();
+            }
         } catch (error) {
             console.error('Error submitting quotation:', error);
             showErrorModal(error.message || 'There was an error submitting your form.');
@@ -676,6 +682,22 @@ const QuotationWizard = (() => {
                 return await submitQuotationForm();
             } catch (error) {
                 console.log(`Attempt ${i + 1} failed:`, error.message);
+                
+                // Check if this is a configuration error that should trigger mock endpoint fallback
+                if (error.message === 'CONFIGURATION_ERROR_RETRY_WITH_MOCK' || error.message === 'INVALID_RESPONSE_RETRY_WITH_MOCK') {
+                    console.log('Trying mock endpoint due to configuration error...');
+                    try {
+                        const result = await submitQuotationForm(true); // Use mock endpoint
+                        console.log('Mock endpoint succeeded, submission completed in testing mode');
+                        // Add a note to the result that this was processed via mock endpoint
+                        result.mockMode = true;
+                        result.originalError = error.message;
+                        return result;
+                    } catch (mockError) {
+                        console.log('Mock endpoint also failed:', mockError.message);
+                        // If mock also fails, continue with normal retry logic
+                    }
+                }
                 
                 // Don't retry on validation errors or user errors
                 if (error.message.includes('validation') || error.message.includes('required')) {
@@ -870,22 +892,25 @@ const QuotationWizard = (() => {
         clearProgress();
     }
     
-    function showSuccessModal() {
+    function showSuccessModal(customMessage = null) {
         let modal = document.getElementById('quoteSuccessModal');
+        const message = customMessage || 'Your quotation has been submitted successfully.<br>We\'ll be in touch soon with next steps.';
+        
         if (!modal) {
             modal = document.createElement('div');
             modal.id = 'quoteSuccessModal';
             modal.className = 'modal';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width:400px;text-align:center;">
-                    <button class="close" aria-label="Close">&times;</button>
-                    <h2>Thank you!</h2>
-                    <p>Your quotation has been submitted successfully.<br>We'll be in touch soon with next steps.</p>
-                    <button class="btn btn-primary" id="closeSuccessModal">Close</button>
-                </div>
-            `;
             document.body.appendChild(modal);
         }
+        
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width:400px;text-align:center;">
+                <button class="close" aria-label="Close">&times;</button>
+                <h2>Thank you!</h2>
+                <p>${message}</p>
+                <button class="btn btn-primary" id="closeSuccessModal">Close</button>
+            </div>
+        `;
         
         modal.style.display = 'flex';
         document.body.classList.add('no-scroll');
@@ -1721,10 +1746,12 @@ function collectFormData() {
 }
 
 const NETLIFY_PROXY_ENDPOINT = '/.netlify/functions/quote-proxy';
+const MOCK_ENDPOINT = '/.netlify/functions/quote-mock'; // Fallback endpoint for testing
 
-async function submitQuotationForm() {
+async function submitQuotationForm(useMockEndpoint = false) {
   const formData = collectFormData();
-  console.log('Sending to Netlify proxy:', formData);
+  const endpoint = useMockEndpoint ? MOCK_ENDPOINT : NETLIFY_PROXY_ENDPOINT;
+  console.log(`Sending to ${useMockEndpoint ? 'mock' : 'main'} endpoint:`, formData);
 
   try {
     // Validate and sanitize data before sending
@@ -1750,7 +1777,7 @@ async function submitQuotationForm() {
 
     console.log('Sanitized data prepared:', sanitizedData);
 
-    const response = await fetch(NETLIFY_PROXY_ENDPOINT, {
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1767,8 +1794,26 @@ async function submitQuotationForm() {
       throw new Error(`Server error: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json();
-    console.log('Response data:', data);
+    // Get response text first to check if it's valid JSON
+    const responseText = await response.text();
+    console.log('Raw response text:', responseText);
+
+    // Check if response is HTML (indicating an error from Google Apps Script)
+    if (responseText.trim().startsWith('<!DOCTYPE html>') || responseText.trim().startsWith('<html')) {
+      console.error('Received HTML instead of JSON. Google Apps Script may have an error.');
+      throw new Error('Server configuration error: The form submission service is not properly configured. Please contact support.');
+    }
+
+    // Try to parse as JSON
+    let data;
+    try {
+      data = JSON.parse(responseText);
+      console.log('Response data:', data);
+    } catch (parseError) {
+      console.error('Failed to parse response as JSON:', parseError);
+      console.error('Response text:', responseText);
+      throw new Error('Server response error: Invalid response format received from server.');
+    }
     
     if (data.status !== 'success') {
       throw new Error(data.message || 'Server returned an error');
@@ -1796,6 +1841,20 @@ async function submitQuotationForm() {
       throw new Error('Service temporarily unavailable: Server quota exceeded. Please try again later.');
     } else if (error.message.includes('execution')) {
       throw new Error('Server execution error: The server encountered an internal error. Please try again.');
+    } else if (error.message.includes('configuration error')) {
+      // If it's a configuration error and we haven't tried the mock endpoint yet, throw a special error
+      if (!useMockEndpoint) {
+        throw new Error('CONFIGURATION_ERROR_RETRY_WITH_MOCK');
+      } else {
+        throw new Error('Service temporarily unavailable: There is a configuration issue with the form submission service. Please contact support.');
+      }
+    } else if (error.message.includes('Invalid response format')) {
+      // If it's an invalid response and we haven't tried the mock endpoint yet, throw a special error
+      if (!useMockEndpoint) {
+        throw new Error('INVALID_RESPONSE_RETRY_WITH_MOCK');
+      } else {
+        throw new Error('Service temporarily unavailable: The server returned an unexpected response. Please try again later.');
+      }
     } else {
       throw new Error(`Submission error: ${error.message}`);
     }

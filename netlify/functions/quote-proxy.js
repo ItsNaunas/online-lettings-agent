@@ -55,13 +55,42 @@ exports.handler = async (event, context) => {
       const responseText = await response.text();
       console.log('Apps Script response body:', responseText);
 
+      // Check if response is HTML (indicating an error from Google Apps Script)
+      if (responseText.trim().startsWith('<!DOCTYPE html>') || responseText.trim().startsWith('<html')) {
+        console.error('Google Apps Script returned HTML error page instead of JSON');
+        console.error('Response text:', responseText);
+        
+        // Extract error message from HTML if possible
+        const errorMatch = responseText.match(/<div[^>]*>([^<]*(?:error|Error|ERROR)[^<]*)</i);
+        const errorMessage = errorMatch ? errorMatch[1] : 'Google Apps Script error';
+        
+        return {
+          statusCode: 500,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            status: 'error',
+            message: 'Google Apps Script configuration error',
+            details: errorMessage,
+            debug: 'The Google Apps Script is returning HTML instead of JSON. This indicates a deployment or configuration issue.',
+          }),
+        };
+      }
+
       // Try to parse as JSON, fallback to text if it fails
       let responseData;
       try {
         responseData = JSON.parse(responseText);
       } catch (parseError) {
-        console.log('Response is not JSON, returning as text');
-        responseData = responseText;
+        console.log('Response is not JSON, but also not HTML error. Returning as text');
+        console.log('Parse error:', parseError.message);
+        responseData = {
+          status: 'error',
+          message: 'Invalid response format from Google Apps Script',
+          details: responseText,
+        };
       }
 
       // Return the response with CORS headers
