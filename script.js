@@ -221,6 +221,13 @@ const OnlineLettingAgents = (() => {
 // Initialize application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     OnlineLettingAgents.init();
+    preselectPackageFromURL();
+    renderPackageOptions();
+    enhancePackageAndAddonCards();
+    initSummaryAndConsent();
+    activateScrollAnimations();
+    initPageInteractions();
+    initFAQAccordion();
 });
 
 // Testimonials Slider
@@ -454,7 +461,7 @@ window.addEventListener('scroll', () => {
 });
 
 // --- Consolidated IntersectionObserver for all scroll animations ---
-document.addEventListener('DOMContentLoaded', function() {
+function activateScrollAnimations() {
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -468,7 +475,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }, observerOptions);
-    // All animated elements
     const animatedElements = document.querySelectorAll('.animate-on-scroll, .slide-in-left, .slide-in-right, .scale-in, .bounce-in, .service-card, .pricing-card, .testimonial-content');
     animatedElements.forEach(el => {
         el.style.opacity = '0';
@@ -477,7 +483,6 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(el);
     });
 
-    // --- Carousel/Auto-advance ---
     setTimeout(() => {
         try {
             showPropertySlide(1);
@@ -494,10 +499,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error starting carousels:', error);
         }
     }, 1000);
-    
-    // Initialize step navigation for quotation form
-    // Note: Step navigation is handled by the quotation builder system below
-});
+}
 
 // Form validation for contact forms (if any are added later)
 function validateForm(form) {
@@ -517,47 +519,25 @@ function validateForm(form) {
 }
 
 // Initialize tooltips or other UI enhancements
-document.addEventListener('DOMContentLoaded', () => {
-    // Add loading animation
+function initPageInteractions() {
     document.body.style.opacity = '0';
     setTimeout(() => {
         document.body.style.transition = 'opacity 0.5s ease';
         document.body.style.opacity = '1';
     }, 100);
-    
-    // Add hover effects for service cards
+
     const serviceCards = document.querySelectorAll('.service-card');
     serviceCards.forEach(card => {
         card.addEventListener('mouseenter', () => {
             card.style.transform = 'translateY(-10px) scale(1.02)';
         });
-        
+
         card.addEventListener('mouseleave', () => {
             card.style.transform = 'translateY(0) scale(1)';
         });
     });
-});
+}
 
-// --- Lazy-load images using IntersectionObserver ---
-document.addEventListener('DOMContentLoaded', function() {
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    if (img.dataset.src) {
-                        img.src = img.dataset.src;
-                        img.classList.remove('lazy');
-                        observer.unobserve(img);
-                    }
-                }
-            });
-        });
-        document.querySelectorAll('img.lazy').forEach(img => {
-            imageObserver.observe(img);
-        });
-    }
-});
 
 function selectPlan(card) {
     document.querySelectorAll('.pricing-card').forEach(c => c.classList.remove('selected'));
@@ -565,28 +545,26 @@ function selectPlan(card) {
 } 
 
 // FAQ Accordion functionality
-document.addEventListener('DOMContentLoaded', function() {
+function initFAQAccordion() {
     const faqQuestions = document.querySelectorAll('.faq-question');
-    
+
     faqQuestions.forEach(question => {
         question.addEventListener('click', function() {
             const answer = this.nextElementSibling;
             const isActive = this.classList.contains('active');
-            
-            // Close all other FAQ items
+
             faqQuestions.forEach(q => {
                 q.classList.remove('active');
                 q.nextElementSibling.classList.remove('active');
             });
-            
-            // Toggle current item
+
             if (!isActive) {
                 this.classList.add('active');
                 answer.classList.add('active');
             }
         });
     });
-}); 
+}
 
 // Quotation Wizard Module - handles multi-step form functionality
 const QuotationWizard = (() => {
@@ -667,22 +645,28 @@ const QuotationWizard = (() => {
         }
     }
     
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault();
-        
+
         if (!validateStep(currentStep)) {
             return;
         }
-        
-        // Clear saved progress
-        clearProgress();
-        
-        // Show success modal
-        showSuccessModal();
-        
-        // Reset form
-        form.reset();
-        goToStep(0);
+
+        if (!validateConsent()) {
+            alert('Please confirm your consent to be contacted before submitting your quote.');
+            return;
+        }
+
+        try {
+            await submitQuotationForm();
+            clearProgress();
+            showSuccessModal();
+            form.reset();
+            goToStep(0);
+        } catch (error) {
+            console.error('Error submitting quotation:', error);
+            alert('There was an error submitting your form.');
+        }
     }
     
     function goToStep(stepIndex) {
@@ -1278,37 +1262,29 @@ function showPricingTab(tab, btn) {
   }
 })(); 
 
-// Quotation Builder: Pre-select package from URL param
-(function() {
-  if (window.location.pathname.endsWith('quotation.html')) {
-    document.addEventListener('DOMContentLoaded', function() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const preselectedPackage = urlParams.get('package');
-      if (preselectedPackage) {
-        // Wait for package options to be rendered (if dynamic)
-        const trySelect = () => {
-          const pkgInput = document.querySelector(`[name='package'][value='${preselectedPackage.toLowerCase()}']`);
-          if (pkgInput) {
-            pkgInput.checked = true;
-            // Optionally scroll to step 5
-            const step5 = document.getElementById('qb-step-5');
-            if (step5) step5.scrollIntoView({behavior: 'smooth'});
-          } else {
-            setTimeout(trySelect, 100);
-          }
-        };
-        trySelect();
+function preselectPackageFromURL() {
+  if (!window.location.pathname.endsWith('quotation.html')) return;
+  const urlParams = new URLSearchParams(window.location.search);
+  const preselected = urlParams.get('package');
+  if (preselected) {
+    const trySelect = () => {
+      const pkgInput = document.querySelector(`[name='package'][value='${preselected.toLowerCase()}']`);
+      if (pkgInput) {
+        pkgInput.checked = true;
+        const step5 = document.getElementById('qb-step-5');
+        if (step5) step5.scrollIntoView({behavior: 'smooth'});
+      } else {
+        setTimeout(trySelect, 100);
       }
-    });
+    };
+    trySelect();
   }
-})(); 
+}
 
 // Quotation Builder: Render package options and add-ons
-(function() {
-  if (window.location.pathname.endsWith('quotation.html')) {
-    document.addEventListener('DOMContentLoaded', function() {
-      // Only run on the quotation tool page
-      if (!document.getElementById('qbPackageOptions')) return;
+function renderPackageOptions() {
+  if (!window.location.pathname.endsWith('quotation.html')) return;
+  if (!document.getElementById('qbPackageOptions')) return;
 
       // Define your packages
       const packages = [
@@ -1415,20 +1391,16 @@ function showPricingTab(tab, btn) {
       packageInputs.forEach(input => {
         input.addEventListener('change', updateQuoteSummary);
       });
-      
+
       addonInputs.forEach(input => {
         input.addEventListener('change', updateQuoteSummary);
       });
-      
-      // Initial summary update
+
       updateQuoteSummary();
-    });
-  }
-})(); 
+}
 
 // Enhanced Package and Add-on Card Interactions
-document.addEventListener('DOMContentLoaded', function() {
-  // Only run on quotation page
+function enhancePackageAndAddonCards() {
   if (!window.location.pathname.endsWith('quotation.html')) return;
   
   // 📦 Style and handle package card interactions
@@ -1495,11 +1467,11 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   console.log(`Enhanced ${packageCards.length} package cards and ${addOnCards.length} add-on cards`);
-}); 
+}
 
 // Enhanced Summary & Consent Section Polish
-document.addEventListener('DOMContentLoaded', function() {
-  // Only run on quotation page
+let validateConsent = () => true;
+function initSummaryAndConsent() {
   if (!window.location.pathname.endsWith('quotation.html')) return;
   
   // 🎨 Improve consent checkbox layout - this is already handled by CSS, but ensure it's properly structured
@@ -1606,10 +1578,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // 🔒 Enhanced consent validation
   const consentCheckbox = document.querySelector('input[name="consent"]');
   const submitBtn = document.querySelector('#submitQuote');
-  
+
   if (consentCheckbox && submitBtn) {
-    // Add validation for consent checkbox
-    function validateConsent() {
+    validateConsent = function() {
       if (!consentCheckbox.checked) {
         // Add visual feedback for missing consent
         const consentContainer = document.querySelector('.consent-container');
@@ -1626,19 +1597,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return false;
       }
       return true;
-    }
-    
-    // Validate consent on form submission
-    const form = document.querySelector('#quotationBuilderForm');
-    if (form) {
-      form.addEventListener('submit', function(e) {
-        if (!validateConsent()) {
-          e.preventDefault();
-          alert('Please confirm your consent to be contacted before submitting your quote.');
-          return false;
-        }
-      });
-    }
+    };
     
     // Real-time feedback when consent is checked
     consentCheckbox.addEventListener('change', function() {
@@ -1658,65 +1617,61 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   console.log('Summary and consent section enhancements applied');
-}); 
+}
 
 // --- QUOTATION FORM SUBMISSION TO GOOGLE APPS SCRIPT ---
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('quotationBuilderForm');
-  if (!form) return;
+function collectFormData() {
+  const visitDateTime = document.getElementById('visitDate')?.value || '';
+  let visitDate = '';
+  let visitTime = '';
 
-  const submitBtn = document.getElementById('submitQuote');
+  if (visitDateTime) {
+    const dt = new Date(visitDateTime);
+    visitDate = dt.toISOString().split('T')[0];
+    visitTime = dt.toTimeString().split(' ')[0].substring(0, 5);
+  }
 
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    console.log('form submission event triggered');
+  return {
+    submissionDate: new Date().toISOString(),
+    clientName: document.getElementById('clientName')?.value || '',
+    companyNumber: document.getElementById('companyNumber')?.value || '',
+    email: document.getElementById('email')?.value || '',
+    phone: document.getElementById('phone')?.value || '',
+    contactAddress: document.getElementById('contactAddress')?.value || '',
+    howHeard: document.getElementById('howHeard')?.value || '',
+    propertyAddress: document.getElementById('propertyAddress')?.value || '',
+    propertyType: document.getElementById('propertyType')?.value || '',
+    bedrooms: document.getElementById('bedrooms')?.value || '',
+    bathrooms: document.getElementById('bathrooms')?.value || '',
+    yearBuilt: document.getElementById('yearBuilt')?.value || '',
+    currentlyOccupied: document.getElementById('currentlyOccupied')?.value || '',
+    hasLicence: document.getElementById('hasLicence')?.value || '',
+    lettingType: document.getElementById('lettingType')?.value || '',
+    gasAppliances: document.getElementById('gasAppliances')?.value || '',
+    hasEPC: document.getElementById('hasEPC')?.value || '',
+    hasEICR: document.getElementById('hasEICR')?.value || '',
+    needsLicenceCheck: document.getElementById('needsLicenceCheck')?.value || '',
+    package: document.querySelector('input[name="package"]:checked')?.value || '',
+    addons: Array.from(document.querySelectorAll('input[name="addons"]:checked')).map(a => a.value).join(', '),
+    monthlyRent: document.getElementById('monthlyRent')?.value || '',
+    moveInDate: document.getElementById('moveInDate')?.value || '',
+    tenantType: document.getElementById('tenantType')?.value || '',
+    specialRequirements: document.getElementById('specialRequirements')?.value || '',
+    visitDate: visitDate,
+    preferredTime: visitTime,
+    contactMethod: document.getElementById('contactMethod')?.value || '',
+    consent: document.querySelector('input[name="consent"]')?.checked || false
+  };
+}
 
-    // Collect form data from the specified input IDs
-    const visitDateTime = document.getElementById('visitDate')?.value || '';
-    let preferredDate = '';
-    let preferredTime = '';
-    
-    // Parse visitDateTime to separate date and time if provided
-    if (visitDateTime) {
-      const dateTime = new Date(visitDateTime);
-      preferredDate = dateTime.toISOString().split('T')[0]; // YYYY-MM-DD
-      preferredTime = dateTime.toTimeString().split(' ')[0].substring(0, 5); // HH:MM
-    }
+async function submitQuotationForm() {
+  const formData = collectFormData();
+  console.log('Sending to Apps Script:', formData);
 
-    const formData = {
-      clientName: document.getElementById('clientName')?.value || '',
-      email: document.getElementById('email')?.value || '',
-      phone: document.getElementById('phone')?.value || '',
-      contactAddress: document.getElementById('contactAddress')?.value || '',
-      servicePackage: document.querySelector('input[name="package"]:checked')?.value || '',
-      preferredDate: preferredDate,
-      preferredTime: preferredTime
-    };
-
-    console.log("Sending to Apps Script:", formData);
-
-    try {
-      const response = await fetch('https://script.google.com/macros/s/AKfycbzAiBP4yIUEy8WI5sG6ud8wUYY7BmoEVQ7uOdeA3h1dIt_ndyIvcdS-gBUHsyBaGXgr/exec', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-
-      // On success
-      console.log('Form submission response:', response);
-      alert('Quotation submitted successfully!');
-      
-      // Optional: Reset form or redirect
-      form.reset();
-      
-    } catch (error) {
-      // On failure - network errors will be logged here
-      console.error('Network error during form submission:', error);
-      alert('There was an error submitting your form.');
-    }
+  await fetch('https://script.google.com/macros/s/AKfycbzAiBP4yIUEy8WI5sG6ud8wUYY7BmoEVQ7uOdeA3h1dIt_ndyIvcdS-gBUHsyBaGXgr/exec', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(formData)
   });
-}); 
+}
 
