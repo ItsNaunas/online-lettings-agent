@@ -7,8 +7,18 @@ const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE'; // Replace with your Google S
 const BUSINESS_EMAIL = 'hello@onlinelettingagents.co.uk'; // Replace with your business email
 const SHEET_NAME = 'Quotation Submissions';
 
-// Note: doOptions() is not supported by Google Apps Script Web Apps
-// CORS preflight requests are handled by using simple requests (form data instead of JSON)
+// Handle CORS preflight requests
+function doOptions(e) {
+  return ContentService
+    .createTextOutput('')
+    .setMimeType(ContentService.MimeType.TEXT)
+    .setHeaders({
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Max-Age': '3600'
+    });
+}
 
 function doPost(e) {
   try {
@@ -114,16 +124,26 @@ function doPost(e) {
     // Send email notification with CSV attachment
     sendEmailNotification(formData);
     
-    // Return success response
+    // Return success response with CORS headers
     return ContentService
       .createTextOutput(JSON.stringify({ status: 'success', message: 'Quotation submitted successfully' }))
-      .setMimeType(ContentService.MimeType.JSON);
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      });
       
   } catch (error) {
     console.error('Error processing quotation submission:', error);
     return ContentService
       .createTextOutput(JSON.stringify({ status: 'error', message: error.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      });
   }
 }
 
