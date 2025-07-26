@@ -502,7 +502,7 @@ function activateScrollAnimations() {
                 window._carouselIntervalsStarted = true;
             }
         } catch (error) {
-            console.error('Error starting carousels:', error);
+            // Silently handle carousel initialization errors
         }
     }, 1000);
 }
@@ -610,7 +610,6 @@ const QuotationWizard = (() => {
         const submitBtn = document.getElementById('submitQuote');
         
         if (!prevBtn || !nextBtn || !submitBtn) {
-            console.error('Required navigation buttons not found');
             return;
         }
     }
@@ -678,7 +677,6 @@ const QuotationWizard = (() => {
                 showSuccessModal();
             }
         } catch (error) {
-            console.error('Error submitting quotation:', error);
             showErrorModal(error.message || 'There was an error submitting your form.');
         }
     }
@@ -689,14 +687,10 @@ const QuotationWizard = (() => {
             try {
                 return await submitQuotationForm();
             } catch (error) {
-                console.log(`Attempt ${i + 1} failed:`, error.message);
-                
                 // Check if this is a configuration error that should trigger mock endpoint fallback
                 if (error.message === 'CONFIGURATION_ERROR_RETRY_WITH_MOCK' || error.message === 'INVALID_RESPONSE_RETRY_WITH_MOCK') {
-                    console.log('Trying mock endpoint due to configuration error...');
                     try {
                         const result = await submitQuotationForm(true); // Use mock endpoint
-                        console.log('Mock endpoint succeeded, submission completed in testing mode');
                         // Add a note to the result that this was processed via mock endpoint
                         result.mockMode = true;
                         result.originalError = error.message;
@@ -884,7 +878,7 @@ const QuotationWizard = (() => {
             // Restore step position
             goToStep(data.currentStep || 0);
         } catch (e) {
-            console.warn('Failed to restore progress:', e);
+            // Silently handle progress restoration errors
         }
     }
     
@@ -1813,7 +1807,6 @@ async function submitQuotationForm(useMockEndpoint = false) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Server error response:', errorText);
       throw new Error(`Server error: ${response.status} ${response.statusText}`);
     }
 
@@ -1822,7 +1815,6 @@ async function submitQuotationForm(useMockEndpoint = false) {
 
     // Check if response is HTML (indicating an error from Google Apps Script)
     if (responseText.trim().startsWith('<!DOCTYPE html>') || responseText.trim().startsWith('<html')) {
-      console.error('Received HTML instead of JSON. Google Apps Script may have an error.');
       throw new Error('Server configuration error: The form submission service is not properly configured. Please contact support.');
     }
 
@@ -1831,8 +1823,6 @@ async function submitQuotationForm(useMockEndpoint = false) {
     try {
       data = JSON.parse(responseText);
     } catch (parseError) {
-      console.error('Failed to parse response as JSON:', parseError);
-      console.error('Response text:', responseText);
       throw new Error('Server response error: Invalid response format received from server.');
     }
     
@@ -1842,8 +1832,6 @@ async function submitQuotationForm(useMockEndpoint = false) {
 
     return data;
   } catch (error) {
-    console.error('Form submission error:', error);
-    
     // Enhanced error detection and messaging
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
       // Check for specific network issues
