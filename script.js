@@ -1720,11 +1720,11 @@ function collectFormData() {
   };
 }
 
-const APPS_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwAb5m_epLiIDJ6UCi-0ETiEYkhJCF63bjjamB3LnLQ2Y4vDewvwD35nxvU44IUDh8V/exec';
+const NETLIFY_PROXY_ENDPOINT = '/.netlify/functions/quote-proxy';
 
 async function submitQuotationForm() {
   const formData = collectFormData();
-  console.log('Sending to Apps Script:', formData);
+  console.log('Sending to Netlify proxy:', formData);
 
   try {
     // Validate and sanitize data before sending
@@ -1748,18 +1748,14 @@ async function submitQuotationForm() {
       sanitizedData[key] = value;
     });
 
-    // Convert sanitized data to URL-encoded form data to avoid CORS preflight
-    const formBody = new URLSearchParams();
-    Object.keys(sanitizedData).forEach(key => {
-      formBody.append(key, sanitizedData[key]);
-    });
+    console.log('Sanitized data prepared:', sanitizedData);
 
-    console.log('Form body prepared:', formBody.toString());
-
-    const response = await fetch(APPS_SCRIPT_ENDPOINT, {
+    const response = await fetch(NETLIFY_PROXY_ENDPOINT, {
       method: 'POST',
-      body: formBody
-      // No Content-Type header - browser will set it to application/x-www-form-urlencoded
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(sanitizedData)
     });
 
     console.log('Response status:', response.status);
