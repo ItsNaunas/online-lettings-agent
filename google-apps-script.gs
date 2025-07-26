@@ -7,6 +7,20 @@ const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE'; // Replace with your Google S
 const BUSINESS_EMAIL = 'hello@onlinelettingagents.co.uk'; // Replace with your business email
 const SHEET_NAME = 'Quotation Submissions';
 
+function doOptions(e) {
+  // Handle CORS preflight requests
+  const headers = {
+    'Access-Control-Allow-Origin': 'https://clever-bublanina-1af2bc.netlify.app',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Max-Age': '86400'
+  };
+  
+  return ContentService.createTextOutput('')
+    .setMimeType(ContentService.MimeType.TEXT)
+    .setHeaders(headers);
+}
+
 function doPost(e) {
   try {
     // Parse the incoming data
@@ -99,16 +113,26 @@ function doPost(e) {
     // Send email notification with CSV attachment
     sendEmailNotification(formData);
     
-    // Return success response
+    // Return success response with CORS headers
     return ContentService
       .createTextOutput(JSON.stringify({ status: 'success', message: 'Quotation submitted successfully' }))
-      .setMimeType(ContentService.MimeType.JSON);
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeaders({
+        'Access-Control-Allow-Origin': 'https://clever-bublanina-1af2bc.netlify.app',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      });
       
   } catch (error) {
     console.error('Error processing quotation submission:', error);
     return ContentService
       .createTextOutput(JSON.stringify({ status: 'error', message: error.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeaders({
+        'Access-Control-Allow-Origin': 'https://clever-bublanina-1af2bc.netlify.app',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      });
   }
 }
 
