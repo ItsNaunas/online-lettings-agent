@@ -5,6 +5,9 @@
     --green-dark: #1a4a2d;
     --brand-green: #2d5016;
     --brand-green-light: #eaf5ee;
+
+    /* Alert Colors */
+    --danger: #dc3545;
     
     /* Neutral Colors */
     --cream: #fffbea;
@@ -1088,6 +1091,20 @@ body.no-scroll {
   color: var(--green);
   margin-bottom: 1rem;
   font-size: 2rem;
+}
+
+/* Error modal styling */
+#quoteErrorModal h2 {
+  color: var(--danger);
+}
+#quoteErrorModal .btn-primary {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--cream);
+}
+#quoteErrorModal .btn-primary:hover {
+  background: #b21f2d;
+  border-color: #b21f2d;
 }
 
 .quote-details {
