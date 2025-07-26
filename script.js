@@ -1669,6 +1669,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
+    
+    console.log('form submission event triggered');
 
     // Collect form data from the specified input IDs
     const visitDateTime = document.getElementById('visitDate')?.value || '';
@@ -1692,7 +1694,7 @@ document.addEventListener('DOMContentLoaded', function() {
       preferredTime: preferredTime
     };
 
-    console.log('Submitting quotation data:', formData);
+    console.log("Sending to Apps Script:", formData);
 
     try {
       const response = await fetch('https://script.google.com/macros/s/AKfycbzAiBP4yIUEy8WI5sG6ud8wUYY7BmoEVQ7uOdeA3h1dIt_ndyIvcdS-gBUHsyBaGXgr/exec', {
@@ -1711,8 +1713,8 @@ document.addEventListener('DOMContentLoaded', function() {
       form.reset();
       
     } catch (error) {
-      // On failure
-      console.error('Form submission error:', error);
+      // On failure - network errors will be logged here
+      console.error('Network error during form submission:', error);
       alert('There was an error submitting your form.');
     }
   });
