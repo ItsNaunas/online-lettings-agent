@@ -7,17 +7,15 @@ const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE'; // Replace with your Google S
 const BUSINESS_EMAIL = 'hello@onlinelettingagents.co.uk'; // Replace with your business email
 const SHEET_NAME = 'Quotation Submissions';
 
-// Handle CORS preflight requests
-function doOptions(e) {
+// Handle GET requests (for testing and status check)
+function doGet(e) {
   return ContentService
-    .createTextOutput('')
-    .setMimeType(ContentService.MimeType.TEXT)
-    .setHeaders({
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Max-Age': '3600'
-    });
+    .createTextOutput(JSON.stringify({ 
+      status: 'success', 
+      message: 'Quotation API v3 is running',
+      timestamp: new Date().toISOString()
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
@@ -124,26 +122,16 @@ function doPost(e) {
     // Send email notification with CSV attachment
     sendEmailNotification(formData);
     
-    // Return success response with CORS headers
+    // Return success response (no CORS headers needed for simple requests)
     return ContentService
       .createTextOutput(JSON.stringify({ status: 'success', message: 'Quotation submitted successfully' }))
-      .setMimeType(ContentService.MimeType.JSON)
-      .setHeaders({
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      });
+      .setMimeType(ContentService.MimeType.JSON);
       
   } catch (error) {
     console.error('Error processing quotation submission:', error);
     return ContentService
       .createTextOutput(JSON.stringify({ status: 'error', message: error.toString() }))
-      .setMimeType(ContentService.MimeType.JSON)
-      .setHeaders({
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      });
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
