@@ -1692,15 +1692,51 @@ document.addEventListener('DOMContentLoaded', function() {
     loadingDiv.style.display = 'block';
     if (submitBtn) submitBtn.disabled = true;
 
-    // Collect form data
+    // Collect all form data from the quotation form
     const formData = {
+      // Client Details
       clientName: document.getElementById('clientName')?.value || '',
+      companyNumber: document.getElementById('companyNumber')?.value || '',
       email: document.getElementById('email')?.value || '',
       phone: document.getElementById('phone')?.value || '',
       contactAddress: document.getElementById('contactAddress')?.value || '',
-      servicePackage: document.getElementById('servicePackage')?.value || '',
-      preferredDate: document.getElementById('preferredDate')?.value || '',
-      preferredTime: document.getElementById('preferredTime')?.value || ''
+      howHeard: document.getElementById('howHeard')?.value || '',
+      
+      // Property Details
+      propertyAddress: document.getElementById('propertyAddress')?.value || '',
+      propertyType: document.getElementById('propertyType')?.value || '',
+      bedrooms: document.getElementById('bedrooms')?.value || '',
+      bathrooms: document.getElementById('bathrooms')?.value || '',
+      yearBuilt: document.getElementById('yearBuilt')?.value || '',
+      currentlyOccupied: document.getElementById('currentlyOccupied')?.value || '',
+      
+      // Licensing & Legal
+      hasLicence: document.getElementById('hasLicence')?.value || '',
+      lettingType: document.getElementById('lettingType')?.value || '',
+      gasAppliances: document.getElementById('gasAppliances')?.value || '',
+      hasEPC: document.getElementById('hasEPC')?.value || '',
+      hasEICR: document.getElementById('hasEICR')?.value || '',
+      needsLicenceCheck: document.getElementById('needsLicenceCheck')?.value || '',
+      
+      // Service Package
+      package: document.querySelector('input[name="package"]:checked')?.value || '',
+      addons: Array.from(document.querySelectorAll('input[name="addons"]:checked')).map(cb => cb.value).join(', '),
+      
+      // Additional Requirements
+      monthlyRent: document.getElementById('monthlyRent')?.value || '',
+      moveInDate: document.getElementById('moveInDate')?.value || '',
+      tenantType: document.getElementById('tenantType')?.value || '',
+      specialRequirements: document.getElementById('specialRequirements')?.value || '',
+      
+      // Contact Preferences
+      visitDate: document.getElementById('visitDate')?.value || '',
+      contactMethod: document.getElementById('contactMethod')?.value || '',
+      
+      // Timestamp
+      submissionDate: new Date().toISOString(),
+      
+      // Consent
+      consent: document.querySelector('input[name="consent"]')?.checked || false
     };
 
     console.log('Submitting to Google Sheets:', formData); // <-- Debug log
