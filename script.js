@@ -1545,6 +1545,7 @@ function enhancePackageAndAddonCards() {
     card.addEventListener('click', function(e) {
       // Prevent double-firing if clicking directly on radio button
       if (e.target.type !== 'radio') {
+        e.preventDefault();
         radio.checked = true;
         radio.dispatchEvent(new Event('change', { bubbles: true }));
       }
@@ -1579,6 +1580,12 @@ function enhancePackageAndAddonCards() {
         }, 300);
       }
     });
+    
+    // Initialize selected state if radio is already checked
+    if (radio.checked) {
+      card.classList.add('selected');
+      card.setAttribute('aria-checked', 'true');
+    }
   });
   
   // 🧩 Style and handle add-on card interactions (both .addon-card and .addon-option)
@@ -1597,6 +1604,7 @@ function enhancePackageAndAddonCards() {
     card.addEventListener('click', function(e) {
       // Prevent double-firing if clicking directly on checkbox
       if (e.target.type !== 'checkbox') {
+        e.preventDefault();
         checkbox.checked = !checkbox.checked;
         checkbox.dispatchEvent(new Event('change', { bubbles: true }));
       }
@@ -1627,6 +1635,12 @@ function enhancePackageAndAddonCards() {
         }
       }, 150);
     });
+    
+    // Initialize selected state if checkbox is already checked
+    if (checkbox.checked) {
+      card.classList.add('selected');
+      card.setAttribute('aria-checked', 'true');
+    }
   });
 }
 
