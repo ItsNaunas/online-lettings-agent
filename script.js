@@ -1694,29 +1694,44 @@ function collectFormData() {
   };
 }
 
-const APPS_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzU4-ogJtHai4_47RTGqkbJ1VofNIQcbGonDTuBoo-NI2BNX3zYHszqbIO1lUI0t5QZ/exec';
+const APPS_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwAb5m_epLiIDJ6UCi-0ETiEYkhJCF63bjjamB3LnLQ2Y4vDewvwD35nxvU44IUDh8V/exec';
 
 async function submitQuotationForm() {
   const formData = collectFormData();
   console.log('Sending to Apps Script:', formData);
 
-  const response = await fetch(APPS_SCRIPT_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(formData)
-  });
+  try {
+    const response = await fetch(APPS_SCRIPT_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    });
 
-  if (!response.ok) {
-    throw new Error(`Network response was not ok (${response.status})`);
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    if (data.status !== 'success') {
+      throw new Error(data.message || 'Server returned an error');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Form submission error:', error);
+    
+    // Provide specific error messages for common issues
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      throw new Error('Network error: Unable to connect to the server. Please check your internet connection and try again.');
+    } else if (error.message.includes('CORS')) {
+      throw new Error('CORS error: The server is not accepting requests from this domain. Please contact support.');
+    } else if (error.message.includes('Failed to fetch')) {
+      throw new Error('Connection failed: Unable to reach the server. Please try again in a few moments.');
+    } else {
+      throw new Error(`Submission error: ${error.message}`);
+    }
   }
-
-  const data = await response.json();
-  if (data.status !== 'success') {
-    throw new Error(data.message || 'Unknown error');
-  }
-
-  return data;
 }
 

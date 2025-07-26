@@ -38,12 +38,12 @@ This guide will help you set up the Google Sheets integration for your quotation
 ## Step 4: Update Your Website
 
 1. Open `script.js` in your project
-2. Find the Google Apps Script URL (around line 1708)
+2. Find the Google Apps Script URL (around line 1696)
 3. Replace it with your new Web App URL from Step 3
 
 The current URL in your code is:
 ```javascript
-await fetch('https://script.google.com/macros/s/AKfycbz8C_aMmBqpgeY7LEwn-PGJJUDZuQIYQ6qNPecCklS1qThtQvpiWR2edOUMlHcR_cce/exec', {
+await fetch('https://script.google.com/macros/s/AKfycbwAb5m_epLiIDJ6UCi-0ETiEYkhJCF63bjjamB3LnLQ2Y4vDewvwD35nxvU44IUDh8V/exec', {
 ```
 
 Replace it with your new URL.
