@@ -10,9 +10,6 @@ function doPost(e) {
     // Handle form data from Netlify proxy
     const formData = e.parameter;
     
-    // Log received data for debugging
-    console.log('Received form data:', formData);
-
     const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
 
     const row = [
