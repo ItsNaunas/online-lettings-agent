@@ -1,9 +1,7 @@
 // Online Letting Agents - Main Application
-console.log('🚀 Online Letting Agents script loading...');
 
 // Test function to verify JavaScript is working
 function testJavaScript() {
-  console.log('✅ JavaScript is working!');
   return true;
 }
 
@@ -20,7 +18,6 @@ const OnlineLettingAgents = (() => {
     // Initialize application
     function init() {
         currentPage = getCurrentPage();
-        console.log('Initializing OnlineLettingAgents app for page:', currentPage);
         
         // Initialize common functionality
         initNavigation();
@@ -41,17 +38,13 @@ const OnlineLettingAgents = (() => {
     function getCurrentPage() {
         const body = document.body;
         if (body && body.dataset && body.dataset.page) {
-            console.log('Page detected from data-page:', body.dataset.page);
             return body.dataset.page;
         }
         // Fallback to URL checking
         const path = window.location.pathname;
-        console.log('Checking URL path:', path);
         if (path.includes('quotation')) {
-            console.log('Detected quotation page from URL');
             return 'quotation';
         }
-        console.log('Defaulting to index page');
         return 'index';
     }
     
@@ -158,27 +151,22 @@ const OnlineLettingAgents = (() => {
     
     function initTestimonials() {
         // Testimonials functionality is handled by global functions
-        console.log('Testimonials initialized');
     }
     
     function initPropertiesCarousel() {
         // Properties carousel functionality is handled by global functions
-        console.log('Properties carousel initialized');
     }
     
     function initPricingTabs() {
         // Pricing tabs functionality is handled by global functions
-        console.log('Pricing tabs initialized');
     }
     
     function initFAQ() {
         // FAQ functionality is handled by global functions
-        console.log('FAQ initialized');
     }
     
     function initModals() {
         // Modal functionality is now handled by the new working modals
-        console.log('Working modals initialized');
     }
     
     function initChat() {
@@ -203,7 +191,6 @@ const OnlineLettingAgents = (() => {
     
     // Initialize contact bar
     function initContactBar() {
-        console.log('Contact bar initialized');
     }
     
     // Quotation page functionality
@@ -395,7 +382,12 @@ function goToPropertySlide(n) {
 
 // Close modals when clicking outside
 window.addEventListener('click', function(event) {
-    // }
+    const modals = document.querySelectorAll('.modal, .modal-overlay');
+    modals.forEach(modal => {
+        if (event.target === modal && modal.classList.contains('is-open')) {
+            closeModal(modal);
+        }
+    });
 });
 
 // Smooth scrolling for navigation links
@@ -578,22 +570,24 @@ const QuotationWizard = (() => {
     
     // Public API
     function init() {
-        console.log('Initializing QuotationWizard...');
         
         form = document.getElementById('quotationBuilderForm');
         steps = Array.from(document.querySelectorAll('.quote-step'));
         
         if (!form || steps.length === 0) {
-            console.log('Quotation form not found, skipping wizard initialization');
             return;
         }
         
         initElements();
         initEventListeners();
         initProgressPersistence();
-        showStep(0); // Start fresh
         
-        console.log(`QuotationWizard initialized with ${steps.length} steps`);
+        // If no progress was restored, start at step 0
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+            showStep(0);
+        }
+        
     }
     
     function initElements() {
@@ -694,7 +688,6 @@ const QuotationWizard = (() => {
                         result.originalError = error.message;
                         return result;
                     } catch (mockError) {
-                        console.log('Mock endpoint also failed:', mockError.message);
                         // If mock also fails, continue with normal retry logic
                     }
                 }
@@ -711,7 +704,6 @@ const QuotationWizard = (() => {
                 
                 // Wait before retrying (exponential backoff)
                 const delay = Math.min(1000 * Math.pow(2, i), 5000);
-                console.log(`Retrying in ${delay}ms...`);
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
@@ -741,7 +733,6 @@ const QuotationWizard = (() => {
         // Update navigation buttons
         updateNavigationButtons(stepIndex);
         
-        console.log(`Showing step ${stepIndex + 1} of ${steps.length}`);
     }
     
     function updateStepperIndicators(stepIndex) {
@@ -888,8 +879,8 @@ const QuotationWizard = (() => {
     }
     
     function initProgressPersistence() {
-        // Start fresh - clear any existing progress
-        clearProgress();
+        // Try to restore any existing progress, otherwise start fresh
+        restoreProgress();
     }
     
     function showSuccessModal(customMessage = null) {
@@ -963,19 +954,75 @@ const QuotationWizard = (() => {
     };
 })();
 
+// --- SHARED MODAL FUNCTIONS FOR REUSE ACROSS PAGES ---
+
+function openBookingModal() {
+  const modal = document.getElementById("workingBookModal");
+  if (modal) {
+    modal.style.display = "flex";
+  }
+}
+
+function closeWorkingBookModal() {
+  const modal = document.getElementById("workingBookModal");
+  if (modal) {
+    modal.style.display = "none";
+  }
+}
+
+function openCallModal() {
+  const modal = document.getElementById("workingCallModal");
+  if (modal) {
+    modal.style.display = "flex";
+  }
+}
+
+function closeWorkingCallModal() {
+  const modal = document.getElementById("workingCallModal");
+  if (modal) {
+    modal.style.display = "none";
+  }
+}
+
+function submitWorkingBooking(event) {
+  event.preventDefault();
+  alert("Thank you! Your appointment request has been submitted. We'll contact you shortly to confirm.");
+  closeWorkingBookModal();
+}
+
+function submitWorkingCall(event) {
+  event.preventDefault();
+  alert("Thank you! Your call has been scheduled. We'll contact you at the requested time.");
+  closeWorkingCallModal();
+}
+
+// Initialize modal button connections
+function initModalButtons() {
+  const bookBtn = document.getElementById("bookBtn");
+  const callBtn = document.getElementById("callBtn");
+  
+  if (bookBtn) {
+    bookBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      openBookingModal();
+    });
+  }
+  if (callBtn) {
+    callBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      openCallModal();
+    });
+  }
+}
+
+// Call init when DOM is ready
+document.addEventListener("DOMContentLoaded", initModalButtons);
 
 // Modal Management System
 function openModal(modal) {
-  console.log('🔍 openModal called with:', modal);
-  
   if (!modal) {
-    console.error('❌ openModal called with null/undefined modal');
     return;
   }
-  
-  console.log('🔍 Modal computed style before:', window.getComputedStyle(modal).display);
-  console.log('🔍 Modal visibility before:', window.getComputedStyle(modal).visibility);
-  console.log('🔍 Modal opacity before:', window.getComputedStyle(modal).opacity);
   
   modal.classList.add('is-open');
   modal.style.display = 'flex';
@@ -984,18 +1031,10 @@ function openModal(modal) {
   modal.style.zIndex = '9999';
   document.body.classList.add('no-scroll');
   
-  console.log('🔍 Modal computed style after:', window.getComputedStyle(modal).display);
-  console.log('🔍 Modal visibility after:', window.getComputedStyle(modal).visibility);
-  console.log('🔍 Modal opacity after:', window.getComputedStyle(modal).opacity);
-  console.log('🔍 Modal is-open class:', modal.classList.contains('is-open'));
-  console.log('🔍 Body no-scroll class:', document.body.classList.contains('no-scroll'));
-  
   // Safety check - if modal isn't visible after 100ms, unfreeze
   setTimeout(() => {
     const isVisible = window.getComputedStyle(modal).display !== 'none';
-    console.log('🔍 Safety check - modal visible:', isVisible);
     if (!isVisible) {
-      console.error('❌ Modal failed to display! Unfreezing page...');
       document.body.classList.remove('no-scroll');
       modal.classList.remove('is-open');
     }
@@ -1005,7 +1044,6 @@ function openModal(modal) {
   setTimeout(() => {
     const firstFocusable = modal.querySelector('input, button, select, textarea');
     if (firstFocusable) {
-      console.log('🔍 Focusing first focusable element:', firstFocusable);
       firstFocusable.focus();
     }
   }, 10);
@@ -1044,7 +1082,6 @@ function emergencyUnfreeze() {
     modal.classList.remove('is-open');
     modal.style.display = 'none';
   });
-  console.log('Page unfrozen - scroll restored');
 }
 
 function openContactForm() {
@@ -1547,7 +1584,6 @@ function enhancePackageAndAddonCards() {
     });
   });
   
-  console.log(`Enhanced ${packageCards.length} package cards and ${addOnCards.length} add-on cards`);
 }
 
 // Enhanced Summary & Consent Section Polish
@@ -1558,40 +1594,16 @@ function initSummaryAndConsent() {
   // 🎨 Improve consent checkbox layout - this is already handled by CSS, but ensure it's properly structured
   const consentWrapper = document.querySelector('.consent-section');
   if (consentWrapper) {
-    console.log('Enhanced consent section layout');
   }
 
   // 📦 Style the summary panel with clean, professional headers
   const summaryPanel = document.querySelector('.quote-summary-box');
   if (summaryPanel) {
-    console.log('Enhanced summary panel styling - clean professional headers');
-    
-    // Ensure headers are clean and professional (no emojis)
-    const labels = summaryPanel.querySelectorAll('h4 strong');
-    if (labels.length >= 3) {
-      // Remove any existing emojis and keep clean text
-      labels[0].innerText = labels[0].innerText.replace(/📦\s*/, '');
-      labels[1].innerText = labels[1].innerText.replace(/➕\s*/, '');
-      labels[2].innerText = labels[2].innerText.replace(/🏠\s*/, '');
-    }
   }
 
   // 🟢 Enhanced button interactions
   const buttonRow = document.querySelector('.summary-buttons');
   if (buttonRow) {
-    console.log('Enhanced button styling and interactions');
-    
-    const submitBtn = buttonRow.querySelector('.submit-quote-btn');
-    if (submitBtn) {
-      // Add subtle hover animation
-      submitBtn.addEventListener('mouseenter', function() {
-        this.style.transform = 'scale(1.02)';
-      });
-      
-      submitBtn.addEventListener('mouseleave', function() {
-        this.style.transform = 'scale(1)';
-      });
-    }
   }
 
   // ✅ Add completion indicators to completed steps
@@ -1694,10 +1706,8 @@ function initSummaryAndConsent() {
       }
     });
     
-    console.log('Consent validation implemented');
   }
 
-  console.log('Summary and consent section enhancements applied');
 }
 
 // --- QUOTATION FORM SUBMISSION TO GOOGLE APPS SCRIPT ---
@@ -1751,7 +1761,6 @@ const MOCK_ENDPOINT = '/.netlify/functions/quote-mock'; // Fallback endpoint for
 async function submitQuotationForm(useMockEndpoint = false) {
   const formData = collectFormData();
   const endpoint = useMockEndpoint ? MOCK_ENDPOINT : NETLIFY_PROXY_ENDPOINT;
-  console.log(`Sending to ${useMockEndpoint ? 'mock' : 'main'} endpoint:`, formData);
 
   try {
     // Validate and sanitize data before sending
@@ -1775,8 +1784,6 @@ async function submitQuotationForm(useMockEndpoint = false) {
       sanitizedData[key] = value;
     });
 
-    console.log('Sanitized data prepared:', sanitizedData);
-
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
@@ -1784,9 +1791,6 @@ async function submitQuotationForm(useMockEndpoint = false) {
       },
       body: JSON.stringify(sanitizedData)
     });
-
-    console.log('Response status:', response.status);
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -1796,7 +1800,6 @@ async function submitQuotationForm(useMockEndpoint = false) {
 
     // Get response text first to check if it's valid JSON
     const responseText = await response.text();
-    console.log('Raw response text:', responseText);
 
     // Check if response is HTML (indicating an error from Google Apps Script)
     if (responseText.trim().startsWith('<!DOCTYPE html>') || responseText.trim().startsWith('<html')) {
@@ -1808,7 +1811,6 @@ async function submitQuotationForm(useMockEndpoint = false) {
     let data;
     try {
       data = JSON.parse(responseText);
-      console.log('Response data:', data);
     } catch (parseError) {
       console.error('Failed to parse response as JSON:', parseError);
       console.error('Response text:', responseText);

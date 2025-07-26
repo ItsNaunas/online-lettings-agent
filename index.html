@@ -669,61 +669,7 @@
         </form>
       </div>
     </div>
-    <script>
-      // Modal Functions
-      function openBookingModal() {
-        const modal = document.getElementById("workingBookModal");
-        if (modal) {
-          modal.style.display = "flex";
-        }
-      }
-      function closeWorkingBookModal() {
-        const modal = document.getElementById("workingBookModal");
-        if (modal) {
-          modal.style.display = "none";
-        }
-      }
-      function openCallModal() {
-        const modal = document.getElementById("workingCallModal");
-        if (modal) {
-          modal.style.display = "flex";
-        }
-      }
-      function closeWorkingCallModal() {
-        const modal = document.getElementById("workingCallModal");
-        if (modal) {
-          modal.style.display = "none";
-        }
-      }
-      function submitWorkingBooking(event) {
-        event.preventDefault();
-        alert("Thank you! Your appointment request has been submitted. We'll contact you shortly to confirm.");
-        closeWorkingBookModal();
-      }
-      function submitWorkingCall(event) {
-        event.preventDefault();
-        alert("Thank you! Your call has been scheduled. We'll contact you at the requested time.");
-        closeWorkingCallModal();
-      }
-      // Connect buttons by ID
-      document.addEventListener("DOMContentLoaded", () => {
-        const bookBtn = document.getElementById("bookBtn");
-        const callBtn = document.getElementById("callBtn");
-        
-        if (bookBtn) {
-          bookBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            openBookingModal();
-          });
-        }
-        if (callBtn) {
-          callBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            openCallModal();
-          });
-        }
-      });
-    </script>
+    <!-- Modal functions now handled by script.js -->
     <script src="script.js"></script>
 </body>
 </html> 
