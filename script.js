@@ -1536,10 +1536,24 @@ function enhancePackageAndAddonCards() {
     
     if (!radio) return;
     
+    // Make card focusable
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'radio');
+    card.setAttribute('aria-checked', radio.checked);
+    
     // Handle card clicks
     card.addEventListener('click', function(e) {
       // Prevent double-firing if clicking directly on radio button
       if (e.target.type !== 'radio') {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+    
+    // Handle keyboard navigation
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
         radio.checked = true;
         radio.dispatchEvent(new Event('change', { bubbles: true }));
       }
@@ -1550,11 +1564,13 @@ function enhancePackageAndAddonCards() {
       // Remove selected class from all package cards
       packageCards.forEach(c => {
         c.classList.remove('selected', 'selecting');
+        c.setAttribute('aria-checked', 'false');
       });
       
       if (this.checked) {
         // Add selecting animation
         card.classList.add('selecting');
+        card.setAttribute('aria-checked', 'true');
         
         // Add selected state after animation
         setTimeout(() => {
@@ -1572,6 +1588,11 @@ function enhancePackageAndAddonCards() {
     
     if (!checkbox) return;
     
+    // Make card focusable
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'checkbox');
+    card.setAttribute('aria-checked', checkbox.checked);
+    
     // Handle card clicks
     card.addEventListener('click', function(e) {
       // Prevent double-firing if clicking directly on checkbox
@@ -1581,10 +1602,20 @@ function enhancePackageAndAddonCards() {
       }
     });
     
+    // Handle keyboard navigation
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        checkbox.checked = !checkbox.checked;
+        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+    
     // Handle checkbox changes
     checkbox.addEventListener('change', function() {
       // Add selecting animation
       card.classList.add('selecting');
+      card.setAttribute('aria-checked', this.checked);
       
       setTimeout(() => {
         card.classList.remove('selecting');

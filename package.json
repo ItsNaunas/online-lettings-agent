@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Quotation form with CORS proxy for Google Apps Script",
   "main": "index.js",
+  "dependencies": {},
   "scripts": {
     "build": "echo 'No build step required for static site'"
   },
