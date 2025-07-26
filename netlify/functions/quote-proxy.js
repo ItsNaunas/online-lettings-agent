@@ -31,21 +31,17 @@ exports.handler = async (event, context) => {
       const jsonData = JSON.parse(event.body);
       console.log('Parsed JSON data:', jsonData);
 
-      // Convert JSON to URL-encoded form data for Apps Script
-      const formBody = new URLSearchParams();
-      Object.keys(jsonData).forEach(key => {
-        formBody.append(key, jsonData[key]);
-      });
+      // Re-stringify the JSON to ensure it's well-formed for Apps Script
+      const jsonBody = JSON.stringify(jsonData);
+      console.log('Re-stringified JSON body:', jsonBody);
 
-      console.log('Converted to form data:', formBody.toString());
-
-      // Forward the request to Google Apps Script as URL-encoded form data
+      // Forward the request to Google Apps Script as JSON
       const response = await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: formBody.toString(),
+        body: jsonBody,
       });
 
       console.log('Apps Script response status:', response.status);
