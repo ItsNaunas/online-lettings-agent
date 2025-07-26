@@ -43,10 +43,22 @@ This guide will help you set up the Google Sheets integration for your quotation
 
 The current URL in your code is:
 ```javascript
-await fetch('https://script.google.com/macros/s/AKfycbwAb5m_epLiIDJ6UCi-0ETiEYkhJCF63bjjamB3LnLQ2Y4vDewvwD35nxvU44IUDh8V/exec', {
+const APPS_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwAb5m_epLiIDJ6UCi-0ETiEYkhJCF63bjjamB3LnLQ2Y4vDewvwD35nxvU44IUDh8V/exec';
+
+async function submitQuotationForm() {
+  const formData = collectFormData();
+  
+  try {
+    const response = await fetch(APPS_SCRIPT_ENDPOINT, {
+      method: 'POST',
+      body: JSON.stringify(formData)
+    });
+    // ... rest of the function
+  }
+}
 ```
 
-Replace it with your new URL.
+Replace the URL with your new Web App URL from Step 3.
 
 ## Step 5: Test the Integration
 
