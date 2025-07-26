@@ -1660,103 +1660,60 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('Summary and consent section enhancements applied');
 }); 
 
-// --- GOOGLE SHEETS QUOTATION FORM SUBMISSION ---
+// --- QUOTATION FORM SUBMISSION TO GOOGLE APPS SCRIPT ---
 document.addEventListener('DOMContentLoaded', function() {
   const form = document.getElementById('quotationBuilderForm');
   if (!form) return;
-
-  // Add error and loading elements if not present
-  let errorDiv = document.getElementById('form-error');
-  if (!errorDiv) {
-    errorDiv = document.createElement('div');
-    errorDiv.id = 'form-error';
-    errorDiv.style.color = 'red';
-    errorDiv.style.marginTop = '10px';
-    form.parentNode.insertBefore(errorDiv, form.nextSibling);
-  }
-  let loadingDiv = document.getElementById('form-loading');
-  if (!loadingDiv) {
-    loadingDiv = document.createElement('div');
-    loadingDiv.id = 'form-loading';
-    loadingDiv.style.marginTop = '10px';
-    loadingDiv.style.display = 'none';
-    loadingDiv.textContent = 'Submitting...';
-    form.parentNode.insertBefore(loadingDiv, errorDiv.nextSibling);
-  }
 
   const submitBtn = document.getElementById('submitQuote');
 
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
-    errorDiv.textContent = '';
-    loadingDiv.style.display = 'block';
-    if (submitBtn) submitBtn.disabled = true;
 
-    // Collect all form data from the quotation form
+    // Collect form data from the specified input IDs
+    const visitDateTime = document.getElementById('visitDate')?.value || '';
+    let preferredDate = '';
+    let preferredTime = '';
+    
+    // Parse visitDateTime to separate date and time if provided
+    if (visitDateTime) {
+      const dateTime = new Date(visitDateTime);
+      preferredDate = dateTime.toISOString().split('T')[0]; // YYYY-MM-DD
+      preferredTime = dateTime.toTimeString().split(' ')[0].substring(0, 5); // HH:MM
+    }
+
     const formData = {
-      // Client Details
       clientName: document.getElementById('clientName')?.value || '',
-      companyNumber: document.getElementById('companyNumber')?.value || '',
       email: document.getElementById('email')?.value || '',
       phone: document.getElementById('phone')?.value || '',
       contactAddress: document.getElementById('contactAddress')?.value || '',
-      howHeard: document.getElementById('howHeard')?.value || '',
-      
-      // Property Details
-      propertyAddress: document.getElementById('propertyAddress')?.value || '',
-      propertyType: document.getElementById('propertyType')?.value || '',
-      bedrooms: document.getElementById('bedrooms')?.value || '',
-      bathrooms: document.getElementById('bathrooms')?.value || '',
-      yearBuilt: document.getElementById('yearBuilt')?.value || '',
-      currentlyOccupied: document.getElementById('currentlyOccupied')?.value || '',
-      
-      // Licensing & Legal
-      hasLicence: document.getElementById('hasLicence')?.value || '',
-      lettingType: document.getElementById('lettingType')?.value || '',
-      gasAppliances: document.getElementById('gasAppliances')?.value || '',
-      hasEPC: document.getElementById('hasEPC')?.value || '',
-      hasEICR: document.getElementById('hasEICR')?.value || '',
-      needsLicenceCheck: document.getElementById('needsLicenceCheck')?.value || '',
-      
-      // Service Package
-      package: document.querySelector('input[name="package"]:checked')?.value || '',
-      addons: Array.from(document.querySelectorAll('input[name="addons"]:checked')).map(cb => cb.value).join(', '),
-      
-      // Additional Requirements
-      monthlyRent: document.getElementById('monthlyRent')?.value || '',
-      moveInDate: document.getElementById('moveInDate')?.value || '',
-      tenantType: document.getElementById('tenantType')?.value || '',
-      specialRequirements: document.getElementById('specialRequirements')?.value || '',
-      
-      // Contact Preferences
-      visitDate: document.getElementById('visitDate')?.value || '',
-      contactMethod: document.getElementById('contactMethod')?.value || '',
-      
-      // Timestamp
-      submissionDate: new Date().toISOString(),
-      
-      // Consent
-      consent: document.querySelector('input[name="consent"]')?.checked || false
+      servicePackage: document.querySelector('input[name="package"]:checked')?.value || '',
+      preferredDate: preferredDate,
+      preferredTime: preferredTime
     };
 
-    console.log('Submitting to Google Sheets:', formData); // <-- Debug log
+    console.log('Submitting quotation data:', formData);
 
     try {
-      await fetch('https://script.google.com/macros/s/AKfycbz8C_aMmBqpgeY7LEwn-PGJJUDZuQIYQ6qNPecCklS1qThtQvpiWR2edOUMlHcR_cce/exec', {
+      const response = await fetch('https://script.google.com/macros/s/AKfycbzAiBP4yIUEy8WI5sG6ud8wUYY7BmoEVQ7uOdeA3h1dIt_ndyIvcdS-gBUHsyBaGXgr/exec', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(formData)
       });
+
+      // On success
+      console.log('Form submission response:', response);
+      alert('Quotation submitted successfully!');
+      
+      // Optional: Reset form or redirect
       form.reset();
-      loadingDiv.style.display = 'none';
-      if (submitBtn) submitBtn.disabled = false;
-      alert('Your quotation request has been submitted!');
-    } catch (err) {
-      loadingDiv.style.display = 'none';
-      if (submitBtn) submitBtn.disabled = false;
-      errorDiv.textContent = 'There was an error submitting your request. Please try again.';
-      console.error('Quotation form error:', err);
+      
+    } catch (error) {
+      // On failure
+      console.error('Form submission error:', error);
+      alert('There was an error submitting your form.');
     }
   });
 }); 
