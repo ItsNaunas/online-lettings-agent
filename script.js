@@ -1670,6 +1670,9 @@ document.addEventListener('DOMContentLoaded', function() {
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
 
+    // Add debug log for event trigger
+    console.log('form submission event triggered');
+
     // Collect form data from the specified input IDs
     const visitDateTime = document.getElementById('visitDate')?.value || '';
     let preferredDate = '';
@@ -1692,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', function() {
       preferredTime: preferredTime
     };
 
-    console.log('Submitting quotation data:', formData);
+    console.log('Sending to Apps Script:', formData);
 
     try {
       const response = await fetch('https://script.google.com/macros/s/AKfycbzAiBP4yIUEy8WI5sG6ud8wUYY7BmoEVQ7uOdeA3h1dIt_ndyIvcdS-gBUHsyBaGXgr/exec', {
