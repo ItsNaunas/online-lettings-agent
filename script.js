@@ -212,6 +212,20 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPackageOptions();
     enhancePackageAndAddonCards();
     initSummaryAndConsent();
+    
+    // Initialize package/addon states for better visual feedback
+    setTimeout(() => {
+        const checkedRadio = document.querySelector('.package-option input[type="radio"]:checked, .package-card input[type="radio"]:checked');
+        if (checkedRadio) {
+            checkedRadio.closest('.package-option, .package-card')?.classList.add('selected');
+        }
+        
+        const checkedCheckboxes = document.querySelectorAll('.addon-option input[type="checkbox"]:checked, .addon-card input[type="checkbox"]:checked');
+        checkedCheckboxes.forEach(checkbox => {
+            checkbox.closest('.addon-option, .addon-card')?.classList.add('selected');
+        });
+    }, 100);
+    
     activateScrollAnimations();
     initPageInteractions();
     initFAQAccordion();
@@ -1521,22 +1535,25 @@ function renderPackageOptions() {
 function enhancePackageAndAddonCards() {
   if (!window.location.pathname.endsWith('quotation.html')) return;
   
-  // 📦 Style and handle package card interactions
-  const packageCards = document.querySelectorAll('.package-card');
+  // 📦 Style and handle package card interactions (both .package-card and .package-option)
+  const packageCards = document.querySelectorAll('.package-card, .package-option');
   packageCards.forEach(card => {
     const radio = card.querySelector('input[type="radio"]');
     
+    if (!radio) return;
+    
     // Handle card clicks
     card.addEventListener('click', function(e) {
+      // Prevent double-firing if clicking directly on radio button
       if (e.target.type !== 'radio') {
         radio.checked = true;
-        radio.dispatchEvent(new Event('change'));
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
       }
     });
     
     // Handle radio button changes
     radio.addEventListener('change', function() {
-      // Remove selected class from all cards
+      // Remove selected class from all package cards
       packageCards.forEach(c => {
         c.classList.remove('selected', 'selecting');
       });
@@ -1554,16 +1571,19 @@ function enhancePackageAndAddonCards() {
     });
   });
   
-  // 🧩 Style and handle add-on card interactions
-  const addOnCards = document.querySelectorAll('.addon-card');
+  // 🧩 Style and handle add-on card interactions (both .addon-card and .addon-option)
+  const addOnCards = document.querySelectorAll('.addon-card, .addon-option');
   addOnCards.forEach(card => {
     const checkbox = card.querySelector('input[type="checkbox"]');
     
+    if (!checkbox) return;
+    
     // Handle card clicks
     card.addEventListener('click', function(e) {
+      // Prevent double-firing if clicking directly on checkbox
       if (e.target.type !== 'checkbox') {
         checkbox.checked = !checkbox.checked;
-        checkbox.dispatchEvent(new Event('change'));
+        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
       }
     });
     
@@ -1583,7 +1603,6 @@ function enhancePackageAndAddonCards() {
       }, 150);
     });
   });
-  
 }
 
 // Enhanced Summary & Consent Section Polish
