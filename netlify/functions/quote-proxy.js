@@ -1,0 +1,107 @@
+const fetch = require('node-fetch');
+
+// The Google Apps Script URL
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwAb5m_epLiIDJ6UCi-0ETiEYkhJCF63bjjamB3LnLQ2Y4vDewvwD35nxvU44IUDh8V/exec';
+
+// CORS headers to be included in all responses
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+exports.handler = async (event, context) => {
+  console.log('Request method:', event.httpMethod);
+  console.log('Request headers:', event.headers);
+  console.log('Request body:', event.body);
+
+  // Handle OPTIONS preflight request
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers: corsHeaders,
+      body: '',
+    };
+  }
+
+  // Handle POST request
+  if (event.httpMethod === 'POST') {
+    try {
+      // Parse the JSON body from the frontend
+      const jsonData = JSON.parse(event.body);
+      console.log('Parsed JSON data:', jsonData);
+
+      // Convert JSON to URL-encoded form data for Apps Script
+      const formBody = new URLSearchParams();
+      Object.keys(jsonData).forEach(key => {
+        formBody.append(key, jsonData[key]);
+      });
+
+      console.log('Converted to form data:', formBody.toString());
+
+      // Forward the request to Google Apps Script as URL-encoded form data
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formBody.toString(),
+      });
+
+      console.log('Apps Script response status:', response.status);
+      console.log('Apps Script response headers:', Object.fromEntries(response.headers.entries()));
+
+      // Get the response text/json from Apps Script
+      const responseText = await response.text();
+      console.log('Apps Script response body:', responseText);
+
+      // Try to parse as JSON, fallback to text if it fails
+      let responseData;
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (parseError) {
+        console.log('Response is not JSON, returning as text');
+        responseData = responseText;
+      }
+
+      // Return the response with CORS headers
+      return {
+        statusCode: response.status,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+        body: typeof responseData === 'string' ? responseData : JSON.stringify(responseData),
+      };
+
+    } catch (error) {
+      console.error('Error proxying to Apps Script:', error);
+      
+      return {
+        statusCode: 500,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'error',
+          message: 'Failed to proxy request to Google Apps Script',
+          error: error.message,
+        }),
+      };
+    }
+  }
+
+  // Method not allowed for other HTTP methods
+  return {
+    statusCode: 405,
+    headers: {
+      ...corsHeaders,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      status: 'error',
+      message: 'Method not allowed',
+    }),
+  };
+};
