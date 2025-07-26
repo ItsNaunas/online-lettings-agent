@@ -1543,11 +1543,13 @@ function enhancePackageAndAddonCards() {
     
     // Handle card clicks
     card.addEventListener('click', function(e) {
+      console.log('Package card clicked:', e.target);
       // Prevent double-firing if clicking directly on radio button
       if (e.target.type !== 'radio') {
         e.preventDefault();
         radio.checked = true;
         radio.dispatchEvent(new Event('change', { bubbles: true }));
+        console.log('Radio checked:', radio.checked);
       }
     });
     
@@ -1602,11 +1604,13 @@ function enhancePackageAndAddonCards() {
     
     // Handle card clicks
     card.addEventListener('click', function(e) {
+      console.log('Addon card clicked:', e.target);
       // Prevent double-firing if clicking directly on checkbox
       if (e.target.type !== 'checkbox') {
         e.preventDefault();
         checkbox.checked = !checkbox.checked;
         checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+        console.log('Checkbox checked:', checkbox.checked);
       }
     });
     
