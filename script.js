@@ -1,5 +1,11 @@
 // Online Letting Agents - Main Application
 
+// Calendar proxy endpoint for Google Calendar integration
+const CALENDAR_PROXY = '/.netlify/functions/calendar-proxy';
+
+// Calendar ID for free/busy checks
+const CALENDAR_ID = 'd47e20bb8dbfedff38f004feacb903d4b5eacc160b6ae51fcdfb17f11da4a80f@group.calendar.google.com';
+
 // Test function to verify JavaScript is working
 function testJavaScript() {
   return true;
@@ -205,6 +211,45 @@ const OnlineLettingAgents = (() => {
     };
 })();
 
+// Initialize calendar functionality (outside module)
+function initCalendarGlobal() {
+    // Load initial availability
+    loadAvailability();
+    
+    // Add event listener for date picker changes
+    const bookingDateInput = document.getElementById('booking-date');
+    const callDateInput = document.getElementById('call-date');
+    
+    if (bookingDateInput) {
+        bookingDateInput.addEventListener('change', () => {
+            loadAvailability();
+        });
+    }
+    
+    if (callDateInput) {
+        callDateInput.addEventListener('change', () => {
+            loadAvailability();
+        });
+    }
+    
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (bookingDateInput) {
+        bookingDateInput.min = today;
+        if (!bookingDateInput.value) {
+            bookingDateInput.value = today;
+        }
+    }
+    
+    if (callDateInput) {
+        callDateInput.min = today;
+        if (!callDateInput.value) {
+            callDateInput.value = today;
+        }
+    }
+}
+
 // Initialize application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     OnlineLettingAgents.init();
@@ -212,6 +257,9 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPackageOptions();
     enhancePackageAndAddonCards();
     initSummaryAndConsent();
+    
+    // Initialize calendar functionality globally
+    initCalendarGlobal();
     
     // Initialize package/addon states for better visual feedback
     setTimeout(() => {
@@ -992,16 +1040,275 @@ function closeWorkingCallModal() {
   }
 }
 
-function submitWorkingBooking(event) {
-  event.preventDefault();
-  alert("Thank you! Your appointment request has been submitted. We'll contact you shortly to confirm.");
-  closeWorkingBookModal();
+// Calendar availability functions
+async function loadAvailability(days = 7) {
+  try {
+    const response = await fetch(`${CALENDAR_PROXY}?mode=freebusy&days=${days}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const freeBusyData = await response.json();
+    
+    if (freeBusyData.status === 'error') {
+      throw new Error(freeBusyData.message || 'Failed to load availability');
+    }
+    
+    // Update both booking and call time selects
+    updateTimeSlots('booking-time', freeBusyData);
+    updateTimeSlots('call-time', freeBusyData);
+    
+  } catch (error) {
+    console.error('Error loading availability:', error);
+    // Fallback to default time slots if availability loading fails
+    updateTimeSlots('booking-time', null);
+    updateTimeSlots('call-time', null);
+  }
 }
 
-function submitWorkingCall(event) {
+function updateTimeSlots(selectId, freeBusyData) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+  
+  // Clear existing options except the first one
+  while (select.children.length > 1) {
+    select.removeChild(select.lastChild);
+  }
+  
+  // Default time slots (9 AM to 4 PM, hourly)
+  const defaultSlots = [
+    { value: '09:00', label: '9:00 AM' },
+    { value: '10:00', label: '10:00 AM' },
+    { value: '11:00', label: '11:00 AM' },
+    { value: '12:00', label: '12:00 PM' },
+    { value: '13:00', label: '1:00 PM' },
+    { value: '14:00', label: '2:00 PM' },
+    { value: '15:00', label: '3:00 PM' },
+    { value: '16:00', label: '4:00 PM' }
+  ];
+  
+  const today = new Date();
+  let selectedDate;
+  
+  // Determine which date to use based on which select we're updating
+  if (selectId === 'booking-time') {
+    selectedDate = document.getElementById('booking-date')?.value;
+  } else if (selectId === 'call-time') {
+    selectedDate = document.getElementById('call-date')?.value;
+  }
+  
+  defaultSlots.forEach(slot => {
+    const option = document.createElement('option');
+    option.value = slot.value;
+    option.textContent = slot.label;
+    
+    // Check if this slot is busy
+    const isDisabled = isTimeSlotBusy(selectedDate, slot.value, freeBusyData);
+    
+    if (isDisabled) {
+      option.disabled = true;
+      option.textContent += ' (Unavailable)';
+      option.style.color = '#ccc';
+    }
+    
+    select.appendChild(option);
+  });
+}
+
+function isTimeSlotBusy(dateStr, timeStr, freeBusyData) {
+  if (!freeBusyData || !freeBusyData.calendars || !freeBusyData.calendars[CALENDAR_ID]) {
+    return false;
+  }
+  
+  if (!dateStr || !timeStr) {
+    return false;
+  }
+  
+  try {
+    // Create start and end times for the slot (assuming 30-minute slots)
+    const slotStart = new Date(`${dateStr}T${timeStr}:00.000Z`);
+    const slotEnd = new Date(slotStart.getTime() + 30 * 60 * 1000); // 30 minutes later
+    
+    const busySlots = freeBusyData.calendars[CALENDAR_ID].busy || [];
+    
+    // Check if the slot overlaps with any busy period
+    return busySlots.some(busy => {
+      const busyStart = new Date(busy.start);
+      const busyEnd = new Date(busy.end);
+      
+      // Check for overlap: slot starts before busy ends AND slot ends after busy starts
+      return slotStart < busyEnd && slotEnd > busyStart;
+    });
+  } catch (error) {
+    console.error('Error checking time slot availability:', error);
+    return false;
+  }
+}
+
+async function submitWorkingBooking(event) {
   event.preventDefault();
-  alert("Thank you! Your call has been scheduled. We'll contact you at the requested time.");
-  closeWorkingCallModal();
+  
+  try {
+    // Get form data
+    const form = event.target.closest('form') || event.target;
+    const formData = new FormData(form);
+    
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const phone = formData.get('phone');
+    const date = formData.get('date');
+    const time = formData.get('time');
+    const message = formData.get('message') || '';
+    
+    if (!name || !email || !phone || !date || !time) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+    
+    // Create start and end times (30-minute appointment)
+    const startDateTime = new Date(`${date}T${time}:00.000Z`);
+    const endDateTime = new Date(startDateTime.getTime() + 30 * 60 * 1000);
+    
+    const payload = {
+      mode: 'book',
+      start: startDateTime.toISOString(),
+      end: endDateTime.toISOString(),
+      name: name,
+      email: email,
+      phone: phone,
+      notes: message,
+      type: 'Property Viewing'
+    };
+    
+    // Show loading state
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn ? submitBtn.textContent : '';
+    if (submitBtn) {
+      submitBtn.textContent = 'Booking...';
+      submitBtn.disabled = true;
+    }
+    
+    const response = await fetch(CALENDAR_PROXY, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || 'Failed to book appointment');
+    }
+    
+    // Success - show confirmation
+    const eventLink = result.eventLink || '';
+    const successMessage = `Thank you! Your property viewing has been booked successfully.${eventLink ? `\n\nView your appointment: ${eventLink}` : '\n\nYou will receive a confirmation email shortly.'}`;
+    
+    alert(successMessage);
+    closeWorkingBookModal();
+    
+    // Reset form
+    form.reset();
+    
+    // Reload availability to reflect the new booking
+    loadAvailability();
+    
+  } catch (error) {
+    console.error('Error booking appointment:', error);
+    alert(`Sorry, there was an error booking your appointment: ${error.message}`);
+  } finally {
+    // Restore button state
+    const submitBtn = event.target.closest('form')?.querySelector('button[type="submit"]') || event.target;
+    if (submitBtn) {
+      submitBtn.textContent = originalText || 'Book Appointment';
+      submitBtn.disabled = false;
+    }
+  }
+}
+
+async function submitWorkingCall(event) {
+  event.preventDefault();
+  
+  try {
+    // Get form data
+    const form = event.target.closest('form') || event.target;
+    const formData = new FormData(form);
+    
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const phone = formData.get('phone');
+    const date = formData.get('date');
+    const time = formData.get('time');
+    const subject = formData.get('subject') || '';
+    
+    if (!name || !email || !phone || !date || !time) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+    
+    // Create start and end times (30-minute call)
+    const startDateTime = new Date(`${date}T${time}:00.000Z`);
+    const endDateTime = new Date(startDateTime.getTime() + 30 * 60 * 1000);
+    
+    const payload = {
+      mode: 'book',
+      start: startDateTime.toISOString(),
+      end: endDateTime.toISOString(),
+      name: name,
+      email: email,
+      phone: phone,
+      notes: subject,
+      type: 'Phone Call'
+    };
+    
+    // Show loading state
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn ? submitBtn.textContent : '';
+    if (submitBtn) {
+      submitBtn.textContent = 'Scheduling...';
+      submitBtn.disabled = true;
+    }
+    
+    const response = await fetch(CALENDAR_PROXY, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || 'Failed to schedule call');
+    }
+    
+    // Success - show confirmation
+    const eventLink = result.eventLink || '';
+    const successMessage = `Thank you! Your call has been scheduled successfully.${eventLink ? `\n\nView your appointment: ${eventLink}` : '\n\nWe will call you at the scheduled time.'}`;
+    
+    alert(successMessage);
+    closeWorkingCallModal();
+    
+    // Reset form
+    form.reset();
+    
+    // Reload availability to reflect the new booking
+    loadAvailability();
+    
+  } catch (error) {
+    console.error('Error scheduling call:', error);
+    alert(`Sorry, there was an error scheduling your call: ${error.message}`);
+  } finally {
+    // Restore button state
+    const submitBtn = event.target.closest('form')?.querySelector('button[type="submit"]') || event.target;
+    if (submitBtn) {
+      submitBtn.textContent = originalText || 'Schedule Call';
+      submitBtn.disabled = false;
+    }
+  }
 }
 
 // Initialize modal button connections
