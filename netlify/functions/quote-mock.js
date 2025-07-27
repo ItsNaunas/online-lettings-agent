@@ -35,16 +35,8 @@ exports.handler = async (event, context) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          status: 'success',
-          message: 'Mock submission received successfully',
-          timestamp: new Date().toISOString(),
-          mockMode: true,
-          receivedData: {
-            clientName: jsonData.clientName,
-            email: jsonData.email,
-            propertyAddress: jsonData.propertyAddress,
-            package: jsonData.package,
-          }
+          result: 'success',
+          message: 'Quotation submitted successfully',
         }),
       };
 
@@ -58,10 +50,8 @@ exports.handler = async (event, context) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          status: 'error',
-          message: 'Mock endpoint error',
-          error: error.message,
-          mockMode: true,
+          result: 'error',
+          message: 'Service temporarily unavailable',
         }),
       };
     }
@@ -75,9 +65,8 @@ exports.handler = async (event, context) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      status: 'error',
+      result: 'error',
       message: 'Method not allowed',
-      mockMode: true,
     }),
   };
 };
