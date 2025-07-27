@@ -1199,8 +1199,8 @@ async function submitWorkingBooking(event) {
     
     const result = await response.json();
     
-    if (!response.ok || !result.success) {
-      throw new Error(result.error || 'Failed to book appointment');
+    if (!response.ok || result.status !== 'success') {
+      throw new Error(result.message || result.error || 'Failed to book appointment');
     }
     
     // Success - show confirmation
@@ -1282,8 +1282,8 @@ async function submitWorkingCall(event) {
     
     const result = await response.json();
     
-    if (!response.ok || !result.success) {
-      throw new Error(result.error || 'Failed to schedule call');
+    if (!response.ok || result.status !== 'success') {
+      throw new Error(result.message || result.error || 'Failed to schedule call');
     }
     
     // Success - show confirmation
