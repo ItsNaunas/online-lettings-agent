@@ -49,7 +49,7 @@ function doPost(e) {
 
     // Return success response as JSON
     return ContentService.createTextOutput(JSON.stringify({ 
-      status: "success",
+      result: "success",
       message: "Quotation submitted successfully" 
     })).setMimeType(ContentService.MimeType.JSON);
 
@@ -58,8 +58,8 @@ function doPost(e) {
     
     // Return error response as JSON
     return ContentService.createTextOutput(JSON.stringify({ 
-      status: "error", 
-      message: error.message 
+      result: "error", 
+      message: "Service temporarily unavailable" 
     })).setMimeType(ContentService.MimeType.JSON);
   }
 }

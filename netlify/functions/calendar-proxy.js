@@ -54,9 +54,7 @@ exports.handler = async (event, context) => {
           },
           body: JSON.stringify({
             status: 'error',
-            message: 'Google Apps Script configuration error',
-            details: errorMessage,
-            debug: 'The Google Apps Script is returning HTML instead of JSON. This indicates a deployment or configuration issue.',
+            message: 'Service temporarily unavailable',
           }),
         };
       }
@@ -69,8 +67,7 @@ exports.handler = async (event, context) => {
         console.error('Response is not JSON, but also not HTML error. Parse error:', parseError.message);
         responseData = {
           status: 'error',
-          message: 'Invalid response format from Google Apps Script',
-          details: responseText,
+          message: 'Service temporarily unavailable',
         };
       }
 
@@ -95,8 +92,7 @@ exports.handler = async (event, context) => {
         },
         body: JSON.stringify({
           status: 'error',
-          message: 'Failed to proxy GET request to Google Apps Script',
-          error: error.message,
+          message: 'Service temporarily unavailable',
         }),
       };
     }
@@ -140,9 +136,7 @@ exports.handler = async (event, context) => {
           },
           body: JSON.stringify({
             status: 'error',
-            message: 'Google Apps Script configuration error',
-            details: errorMessage,
-            debug: 'The Google Apps Script is returning HTML instead of JSON. This indicates a deployment or configuration issue.',
+            message: 'Service temporarily unavailable',
           }),
         };
       }
@@ -155,8 +149,7 @@ exports.handler = async (event, context) => {
         console.error('Response is not JSON, but also not HTML error. Parse error:', parseError.message);
         responseData = {
           status: 'error',
-          message: 'Invalid response format from Google Apps Script',
-          details: responseText,
+          message: 'Service temporarily unavailable',
         };
       }
 
@@ -181,8 +174,7 @@ exports.handler = async (event, context) => {
         },
         body: JSON.stringify({
           status: 'error',
-          message: 'Failed to proxy POST request to Google Apps Script',
-          error: error.message,
+          message: 'Service temporarily unavailable',
         }),
       };
     }

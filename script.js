@@ -718,14 +718,17 @@ const QuotationWizard = (() => {
             form.reset();
             goToStep(0);
             
-            // Show different success message if mock endpoint was used
-            if (result && result.mockMode) {
-                showSuccessModal('Your quotation has been submitted successfully! (Note: This was processed in testing mode due to a temporary service configuration issue. Your request has been logged and will be processed normally.)');
-            } else {
-                showSuccessModal();
-            }
+            // Always show the same success message regardless of endpoint used
+            showSuccessModal();
         } catch (error) {
-            showErrorModal(error.message || 'There was an error submitting your form.');
+            // Show user-friendly error message based on error type
+            let userMessage;
+            if (error.message === 'NETWORK_ERROR') {
+                userMessage = 'Unable to connect to our servers. Please check your internet connection and try again.';
+            } else {
+                userMessage = 'There was an error submitting your form. Please try again or contact us directly if the problem persists.';
+            }
+            showErrorModal(userMessage);
         }
     }
 
@@ -1846,13 +1849,10 @@ function renderPackageOptions() {
 
 // Enhanced Package and Add-on Card Interactions
 function enhancePackageAndAddonCards() {
-  console.log('enhancePackageAndAddonCards called');
   // Check if we're on the quotation page by looking for quotation-specific elements
   if (!document.querySelector('.quote-step')) {
-    console.log('No .quote-step found, returning early');
     return;
   }
-  console.log('Found .quote-step, proceeding with enhancement');
   
   // 📦 Style and handle package card interactions (both .package-card and .package-option)
   const packageCards = document.querySelectorAll('.package-card, .package-option');
@@ -1868,13 +1868,11 @@ function enhancePackageAndAddonCards() {
     
     // Handle card clicks
     card.addEventListener('click', function(e) {
-      console.log('Package card clicked:', e.target);
       // Prevent double-firing if clicking directly on radio button
       if (e.target.type !== 'radio') {
         e.preventDefault();
         radio.checked = true;
         radio.dispatchEvent(new Event('change', { bubbles: true }));
-        console.log('Radio checked:', radio.checked);
       }
     });
     
@@ -1917,16 +1915,12 @@ function enhancePackageAndAddonCards() {
   
   // 🧩 Style and handle add-on card interactions (both .addon-card and .addon-option)
   const addOnCards = document.querySelectorAll('.addon-card, .addon-option');
-  console.log('Found add-on cards:', addOnCards.length);
   addOnCards.forEach((card, index) => {
-    console.log(`Processing add-on card ${index}:`, card);
     const checkbox = card.querySelector('input[type="checkbox"]');
     
     if (!checkbox) {
-      console.log(`No checkbox found in card ${index}`);
       return;
     }
-    console.log(`Checkbox found in card ${index}:`, checkbox);
     
     // Make card focusable
     card.setAttribute('tabindex', '0');
@@ -1935,13 +1929,11 @@ function enhancePackageAndAddonCards() {
     
     // Handle card clicks
     card.addEventListener('click', function(e) {
-      console.log('Addon card clicked:', e.target, 'Checkbox found:', !!checkbox);
       // Prevent double-firing if clicking directly on checkbox
       if (e.target.type !== 'checkbox') {
         e.preventDefault();
         checkbox.checked = !checkbox.checked;
         checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-        console.log('Checkbox checked:', checkbox.checked);
       }
     });
     
@@ -2187,7 +2179,7 @@ async function submitQuotationForm(useMockEndpoint = false) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Server error: ${response.status} ${response.statusText}`);
+      throw new Error('FORM_SUBMISSION_ERROR');
     }
 
     // Get response text first to check if it's valid JSON
@@ -2195,7 +2187,7 @@ async function submitQuotationForm(useMockEndpoint = false) {
 
     // Check if response is HTML (indicating an error from Google Apps Script)
     if (responseText.trim().startsWith('<!DOCTYPE html>') || responseText.trim().startsWith('<html')) {
-      throw new Error('Server configuration error: The form submission service is not properly configured. Please contact support.');
+      throw new Error('configuration error');
     }
 
     // Try to parse as JSON
@@ -2203,11 +2195,11 @@ async function submitQuotationForm(useMockEndpoint = false) {
     try {
       data = JSON.parse(responseText);
     } catch (parseError) {
-      throw new Error('Server response error: Invalid response format received from server.');
+      throw new Error('Invalid response format');
     }
     
     if (data.result !== 'success') {
-      throw new Error(`Server returned an error: ${data.message || 'unknown error'}`);
+      throw new Error('FORM_SUBMISSION_ERROR');
     }
 
     return data;
@@ -2216,36 +2208,36 @@ async function submitQuotationForm(useMockEndpoint = false) {
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
       // Check for specific network issues
       if (error.message.includes('Failed to fetch')) {
-        throw new Error('Connection failed: Unable to reach the server. Please check your internet connection and try again.');
+        throw new Error('NETWORK_ERROR');
       } else if (error.message.includes('NetworkError')) {
-        throw new Error('Network error: Unable to connect to the server. Please check your internet connection and try again.');
+        throw new Error('NETWORK_ERROR');
       } else {
-        throw new Error('Network error: Unable to connect to the server. Please check your internet connection and try again.');
+        throw new Error('NETWORK_ERROR');
       }
     } else if (error.message.includes('CORS')) {
-      throw new Error('CORS error: The server is not accepting requests from this domain. Please contact support.');
+      throw new Error('FORM_SUBMISSION_ERROR');
     } else if (error.message.includes('timeout')) {
-      throw new Error('Request timeout: The server took too long to respond. Please try again.');
+      throw new Error('NETWORK_ERROR');
     } else if (error.message.includes('quota')) {
-      throw new Error('Service temporarily unavailable: Server quota exceeded. Please try again later.');
+      throw new Error('FORM_SUBMISSION_ERROR');
     } else if (error.message.includes('execution')) {
-      throw new Error('Server execution error: The server encountered an internal error. Please try again.');
+      throw new Error('FORM_SUBMISSION_ERROR');
     } else if (error.message.includes('configuration error')) {
       // If it's a configuration error and we haven't tried the mock endpoint yet, throw a special error
       if (!useMockEndpoint) {
         throw new Error('CONFIGURATION_ERROR_RETRY_WITH_MOCK');
       } else {
-        throw new Error('Service temporarily unavailable: There is a configuration issue with the form submission service. Please contact support.');
+        throw new Error('FORM_SUBMISSION_ERROR');
       }
     } else if (error.message.includes('Invalid response format')) {
       // If it's an invalid response and we haven't tried the mock endpoint yet, throw a special error
       if (!useMockEndpoint) {
         throw new Error('INVALID_RESPONSE_RETRY_WITH_MOCK');
       } else {
-        throw new Error('Service temporarily unavailable: The server returned an unexpected response. Please try again later.');
+        throw new Error('FORM_SUBMISSION_ERROR');
       }
     } else {
-      throw new Error(`Submission error: ${error.message}`);
+      throw new Error('FORM_SUBMISSION_ERROR');
     }
   }
 }
