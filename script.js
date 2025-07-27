@@ -1148,9 +1148,12 @@ function isTimeSlotBusy(dateStr, timeStr, freeBusyData) {
 async function submitWorkingBooking(event) {
   event.preventDefault();
   
+  // Get form data and button reference outside try block
+  const form = event.target.closest('form') || event.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const originalText = submitBtn ? submitBtn.textContent : '';
+  
   try {
-    // Get form data
-    const form = event.target.closest('form') || event.target;
     const formData = new FormData(form);
     
     const name = formData.get('name');
@@ -1181,8 +1184,6 @@ async function submitWorkingBooking(event) {
     };
     
     // Show loading state
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalText = submitBtn ? submitBtn.textContent : '';
     if (submitBtn) {
       submitBtn.textContent = 'Booking...';
       submitBtn.disabled = true;
@@ -1220,7 +1221,6 @@ async function submitWorkingBooking(event) {
     alert(`Sorry, there was an error booking your appointment: ${error.message}`);
   } finally {
     // Restore button state
-    const submitBtn = event.target.closest('form')?.querySelector('button[type="submit"]') || event.target;
     if (submitBtn) {
       submitBtn.textContent = originalText || 'Book Appointment';
       submitBtn.disabled = false;
@@ -1231,9 +1231,12 @@ async function submitWorkingBooking(event) {
 async function submitWorkingCall(event) {
   event.preventDefault();
   
+  // Get form data and button reference outside try block
+  const form = event.target.closest('form') || event.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const originalText = submitBtn ? submitBtn.textContent : '';
+  
   try {
-    // Get form data
-    const form = event.target.closest('form') || event.target;
     const formData = new FormData(form);
     
     const name = formData.get('name');
@@ -1264,8 +1267,6 @@ async function submitWorkingCall(event) {
     };
     
     // Show loading state
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalText = submitBtn ? submitBtn.textContent : '';
     if (submitBtn) {
       submitBtn.textContent = 'Scheduling...';
       submitBtn.disabled = true;
@@ -1303,13 +1304,24 @@ async function submitWorkingCall(event) {
     alert(`Sorry, there was an error scheduling your call: ${error.message}`);
   } finally {
     // Restore button state
-    const submitBtn = event.target.closest('form')?.querySelector('button[type="submit"]') || event.target;
     if (submitBtn) {
       submitBtn.textContent = originalText || 'Schedule Call';
       submitBtn.disabled = false;
     }
   }
 }
+
+// Make functions globally accessible for HTML form handlers
+window.submitWorkingBooking = submitWorkingBooking;
+window.submitWorkingCall = submitWorkingCall;
+window.closeWorkingBookModal = closeWorkingBookModal;
+window.closeWorkingCallModal = closeWorkingCallModal;
+window.prevPropertySlide = prevPropertySlide;
+window.nextPropertySlide = nextPropertySlide;
+window.goToPropertySlide = goToPropertySlide;
+window.showPricingTab = showPricingTab;
+window.selectPlan = selectPlan;
+window.goToSlide = goToSlide;
 
 // Initialize modal button connections
 function initModalButtons() {
