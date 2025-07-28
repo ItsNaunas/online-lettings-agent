@@ -5,7 +5,11 @@
   "main": "index.js",
   "dependencies": {},
   "scripts": {
-    "build": "echo 'No build step required for static site'"
+    "build": "echo 'No build step required for static site'",
+    "optimize-images": "echo 'Image optimization requires ImageMagick and WebP tools'",
+    "performance-audit": "echo 'Run Lighthouse audit for performance metrics'",
+    "dev": "python3 -m http.server 8000",
+    "serve": "python3 -m http.server 8000"
   },
   "author": "",
   "license": "ISC"

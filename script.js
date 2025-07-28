@@ -1,10 +1,54 @@
-// Online Letting Agents - Main Application
+// Online Letting Agents - Main Application (Optimized)
 
-// Calendar proxy endpoint for Google Calendar integration
-const CALENDAR_PROXY = '/.netlify/functions/calendar-proxy';
+// Configuration constants
+const CONFIG = {
+    CALENDAR_PROXY: '/.netlify/functions/calendar-proxy',
+    CALENDAR_ID: 'd47e20bb8dbfedff38f004feacb903d4b5eacc160b6ae51fcdfb17f11da4a80f@group.calendar.google.com',
+    STORAGE_KEY: 'ola-quote-progress-v1',
+    NETLIFY_PROXY_ENDPOINT: '/.netlify/functions/quote-proxy',
+    MOCK_ENDPOINT: '/.netlify/functions/quote-mock'
+};
 
-// Calendar ID for free/busy checks
-const CALENDAR_ID = 'd47e20bb8dbfedff38f004feacb903d4b5eacc160b6ae51fcdfb17f11da4a80f@group.calendar.google.com';
+// Performance monitoring
+const Performance = {
+    startTime: performance.now(),
+    
+    mark(name) {
+        if ('performance' in window && 'mark' in performance) {
+            performance.mark(name);
+        }
+    },
+    
+    measure(name, startMark, endMark) {
+        if ('performance' in window && 'measure' in performance) {
+            try {
+                performance.measure(name, startMark, endMark);
+                const measure = performance.getEntriesByName(name)[0];
+                console.log(`${name}: ${measure.duration.toFixed(2)}ms`);
+            } catch (e) {
+                // Silently handle performance API errors
+            }
+        }
+    },
+    
+    reportCoreWebVitals() {
+        // Report key metrics for optimization
+        if ('performance' in window) {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    const navigation = performance.getEntriesByType('navigation')[0];
+                    if (navigation) {
+                        console.log('Performance Metrics:', {
+                            'DOM Content Loaded': `${navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart}ms`,
+                            'Load Complete': `${navigation.loadEventEnd - navigation.loadEventStart}ms`,
+                            'Total Load Time': `${navigation.loadEventEnd - navigation.fetchStart}ms`
+                        });
+                    }
+                }, 0);
+            });
+        }
+    }
+};
 
 // Test function to verify JavaScript is working
 function testJavaScript() {
@@ -279,6 +323,52 @@ document.addEventListener('DOMContentLoaded', () => {
     initFAQAccordion();
 });
 
+// Optimized initialization with performance tracking
+document.addEventListener('DOMContentLoaded', () => {
+    Performance.mark('dom-ready-start');
+    Performance.reportCoreWebVitals();
+    
+    // Critical initialization - run immediately
+    OnlineLettingAgents.init();
+    
+    // Non-critical initialization - defer to next tick
+    requestIdleCallback(() => {
+        Performance.mark('non-critical-init-start');
+        
+        preselectPackageFromURL();
+        renderPackageOptions();
+        enhancePackageAndAddonCards();
+        initSummaryAndConsent();
+        initCalendarGlobal();
+        
+        Performance.mark('non-critical-init-end');
+        Performance.measure('non-critical-init', 'non-critical-init-start', 'non-critical-init-end');
+    });
+    
+    // Visual feedback - defer slightly
+    setTimeout(() => {
+        const checkedRadio = document.querySelector('.package-option input[type="radio"]:checked, .package-card input[type="radio"]:checked');
+        if (checkedRadio) {
+            checkedRadio.closest('.package-option, .package-card')?.classList.add('selected');
+        }
+        
+        const checkedCheckboxes = document.querySelectorAll('.addon-option input[type="checkbox"]:checked, .addon-card input[type="checkbox"]:checked');
+        checkedCheckboxes.forEach(checkbox => {
+            checkbox.closest('.addon-option, .addon-card')?.classList.add('selected');
+        });
+    }, 50);
+    
+    // Animation initialization - defer
+    requestIdleCallback(() => {
+        activateScrollAnimations();
+        initPageInteractions();
+        initFAQAccordion();
+    });
+    
+    Performance.mark('dom-ready-end');
+    Performance.measure('dom-ready-total', 'dom-ready-start', 'dom-ready-end');
+});
+
 // Testimonials Slider
 let currentSlide = 1;
 const testimonials = document.querySelectorAll('.testimonial');
@@ -440,6 +530,66 @@ function goToPropertySlide(n) {
                 imageObserver.observe(img);
             });
         }
+    }
+    // Enhanced lazy loading with better performance
+    function initLazyLoading() {
+        if (!('IntersectionObserver' in window)) {
+            // Fallback for older browsers
+            document.querySelectorAll('img.lazy').forEach(img => {
+                if (img.dataset.src) {
+                    img.src = img.dataset.src;
+                    img.classList.remove('lazy');
+                }
+            });
+            return;
+        }
+
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    
+                    // Handle both img elements and picture sources
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                    }
+                    
+                    // Handle srcset for responsive images
+                    if (img.dataset.srcset) {
+                        img.srcset = img.dataset.srcset;
+                    }
+                    
+                    // Handle picture sources
+                    const picture = img.closest('picture');
+                    if (picture) {
+                        const sources = picture.querySelectorAll('source[data-srcset]');
+                        sources.forEach(source => {
+                            source.srcset = source.dataset.srcset;
+                        });
+                    }
+                    
+                    img.classList.remove('lazy');
+                    img.classList.add('loaded');
+                    observer.unobserve(img);
+                    
+                    // Add fade-in effect
+                    img.style.opacity = '0';
+                    img.style.transition = 'opacity 0.3s ease';
+                    img.onload = () => {
+                        img.style.opacity = '1';
+                    };
+                }
+            });
+        }, {
+            // Load images 50px before they enter the viewport
+            rootMargin: '50px 0px',
+            threshold: 0.01
+        });
+        
+        // Observe all lazy images
+        document.querySelectorAll('img.lazy, img[data-src]').forEach(img => {
+            imageObserver.observe(img);
+        });
     }
 
 // Close modals when clicking outside
@@ -1043,7 +1193,7 @@ function closeWorkingCallModal() {
 // Calendar availability functions
 async function loadAvailability(days = 7) {
   try {
-    const response = await fetch(`${CALENDAR_PROXY}?mode=freebusy&days=${days}`);
+    const response = await fetch(`${CONFIG.CALENDAR_PROXY}?mode=freebusy&days=${days}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -1116,7 +1266,7 @@ function updateTimeSlots(selectId, freeBusyData) {
 }
 
 function isTimeSlotBusy(dateStr, timeStr, freeBusyData) {
-  if (!freeBusyData || !freeBusyData.calendars || !freeBusyData.calendars[CALENDAR_ID]) {
+  if (!freeBusyData || !freeBusyData.calendars || !freeBusyData.calendars[CONFIG.CALENDAR_ID]) {
     return false;
   }
   
@@ -1129,7 +1279,7 @@ function isTimeSlotBusy(dateStr, timeStr, freeBusyData) {
     const slotStart = new Date(`${dateStr}T${timeStr}:00.000Z`);
     const slotEnd = new Date(slotStart.getTime() + 30 * 60 * 1000); // 30 minutes later
     
-    const busySlots = freeBusyData.calendars[CALENDAR_ID].busy || [];
+    const busySlots = freeBusyData.calendars[CONFIG.CALENDAR_ID].busy || [];
     
     // Check if the slot overlaps with any busy period
     return busySlots.some(busy => {
@@ -1189,7 +1339,7 @@ async function submitWorkingBooking(event) {
       submitBtn.disabled = true;
     }
     
-    const response = await fetch(CALENDAR_PROXY, {
+    const response = await fetch(CONFIG.CALENDAR_PROXY, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1272,7 +1422,7 @@ async function submitWorkingCall(event) {
       submitBtn.disabled = true;
     }
     
-    const response = await fetch(CALENDAR_PROXY, {
+    const response = await fetch(CONFIG.CALENDAR_PROXY, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

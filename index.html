@@ -31,6 +31,84 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Critical CSS inlined for faster rendering -->
+    <style>
+        /* Critical above-the-fold styles */
+        :root {
+            --green: #23613d;
+            --green-dark: #1a4a2d;
+            --brand-green: #2d5016;
+            --brand-green-light: #eaf5ee;
+            --danger: #dc3545;
+            --cream: #fffbea;
+            --off-white: #f9f6f2;
+            --white: #ffffff;
+            --dark-gray: #2c2c2c;
+            --medium-gray: #6b7280;
+            --light-gray: #e5e7eb;
+            --text-dark: #1c1c1c;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --shadow-dark: rgba(0, 0, 0, 0.2);
+            --shadow-elevated: 0 10px 30px rgba(0,0,0,.15);
+            --radius: 18px;
+            --font-family: 'Montserrat', 'Lato', Arial, sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Lato', Arial, sans-serif; 
+            line-height: 1.6; 
+            color: var(--dark-gray); 
+            background-color: var(--cream); 
+            padding-top: 80px; 
+        }
+        .navbar { 
+            position: fixed; 
+            top: 0; 
+            width: 100%; 
+            background: var(--white); 
+            z-index: 1000; 
+            box-shadow: 0 2px 10px var(--shadow); 
+        }
+        .hero { 
+            min-height: 80vh; 
+            display: flex; 
+            align-items: center; 
+            position: relative; 
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 100%); 
+        }
+        .btn { 
+            display: inline-block; 
+            padding: 12px 24px; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            font-weight: 500; 
+            text-align: center; 
+            transition: all 0.3s ease; 
+        }
+        .btn-primary { 
+            background: var(--green); 
+            color: var(--white); 
+        }
+        .btn-primary:hover { 
+            background: var(--green-dark); 
+            transform: translateY(-2px); 
+        }
+    </style>
+    <!-- Load non-critical CSS asynchronously -->
+    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="styles.css"></noscript>
+    <!-- Load Font Awesome asynchronously -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    
+    <!-- Resource hints for better performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="assets/images/hero/hero-home.jpg" as="image" media="(min-width: 768px)">
+    <link rel="preload" href="script.js" as="script">
 </head>
 <body data-page="index">
     <!-- Navigation -->
@@ -85,7 +163,16 @@
                     </ul>
                 </div>
                 <div class="why-image">
-                    <img data-src="assets/images/about/about-inspector.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Professional property inspector conducting compliance checks" loading="lazy" class="lazy">
+                    <picture>
+                        <source data-srcset="assets/images/about/about-inspector.webp" type="image/webp">
+                        <img data-src="assets/images/about/about-inspector.jpg" 
+                             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" 
+                             alt="Professional property inspector conducting compliance checks" 
+                             loading="lazy" 
+                             class="lazy"
+                             width="600" 
+                             height="400">
+                    </picture>
                 </div>
             </div>
         </div>
@@ -182,6 +269,25 @@
                 <div class="carousel" role="region" aria-label="Properties carousel">
                     <div class="property-card">
                         <img data-src="assets/images/properties/prop-1.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Modern apartment building in Coventry city centre" loading="lazy" class="lazy" width="300" height="200">
+                        <div class="property-info">
+                            <h4>Modern Flat</h4>
+                            <p>Coventry City Centre</p>
+                        </div>
+                    </div>
+                    <div class="property-card">
+                        <picture>
+                            <source data-srcset="assets/images/properties/prop-1.webp 300w, assets/images/properties/prop-1-large.webp 600w" 
+                                    type="image/webp" sizes="(max-width: 768px) 280px, 300px">
+                            <img data-src="assets/images/properties/prop-1.jpg" 
+                                 data-srcset="assets/images/properties/prop-1.jpg 300w, assets/images/properties/prop-1-large.jpg 600w"
+                                 src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" 
+                                 alt="Modern apartment building in Coventry city centre" 
+                                 loading="lazy" 
+                                 class="lazy" 
+                                 width="300" 
+                                 height="200"
+                                 sizes="(max-width: 768px) 280px, 300px">
+                        </picture>
                         <div class="property-info">
                             <h4>Modern Flat</h4>
                             <p>Coventry City Centre</p>
@@ -662,6 +768,10 @@
       </div>
     </div>
     <!-- Modal functions now handled by script.js -->
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
+    <!-- Preload critical resources -->
+    <link rel="preload" href="script.js" as="script">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
 </body>
 </html> 
