@@ -107,10 +107,28 @@
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     
     <!-- Preload critical resources -->
-    <link rel="preload" href="assets/images/hero/hero-home.jpg" as="image" media="(min-width: 768px)">
+    <!-- Preload critical images with WebP support -->
+    <link rel="preload" href="assets/images/hero/hero-home.webp" as="image" media="(min-width: 1200px)" type="image/webp">
+    <link rel="preload" href="assets/images/hero/hero-home-large.jpg" as="image" media="(min-width: 1200px)" type="image/jpeg">
+    <link rel="preload" href="assets/images/hero/hero-home.webp" as="image" media="(min-width: 769px) and (max-width: 1199px)" type="image/webp">
+    <link rel="preload" href="assets/images/hero/hero-home.jpg" as="image" media="(min-width: 769px) and (max-width: 1199px)" type="image/jpeg">
+    <link rel="preload" href="assets/images/hero/hero-home-small.webp" as="image" media="(max-width: 768px)" type="image/webp">
+    <link rel="preload" href="assets/images/hero/hero-home-small.jpg" as="image" media="(max-width: 768px)" type="image/jpeg">
     <link rel="preload" href="script.js" as="script">
-</head>
-<body data-page="index">
+  </head>
+  <body data-page="index">
+    <!-- WebP Detection Script -->
+    <script>
+        (function() {
+            var webP = new Image();
+            webP.onload = webP.onerror = function() {
+                if (webP.height == 2) {
+                    document.documentElement.classList.add('webp');
+                }
+            };
+            webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+        })();
+    </script>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
@@ -268,7 +286,16 @@
                 </button>
                 <div class="carousel" role="region" aria-label="Properties carousel">
                     <div class="property-card">
-                        <img data-src="assets/images/properties/prop-1.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Modern apartment building in Coventry city centre" loading="lazy" class="lazy" width="300" height="200">
+                        <picture>
+                            <source data-srcset="assets/images/properties/prop-1.webp" type="image/webp">
+                            <img data-src="assets/images/properties/prop-1.jpg" 
+                                 src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" 
+                                 alt="Modern apartment building in Coventry city centre" 
+                                 loading="lazy" 
+                                 class="lazy" 
+                                 width="300" 
+                                 height="200">
+                        </picture>
                         <div class="property-info">
                             <h4>Modern Flat</h4>
                             <p>Coventry City Centre</p>
@@ -276,17 +303,14 @@
                     </div>
                     <div class="property-card">
                         <picture>
-                            <source data-srcset="assets/images/properties/prop-1.webp 300w, assets/images/properties/prop-1-large.webp 600w" 
-                                    type="image/webp" sizes="(max-width: 768px) 280px, 300px">
-                            <img data-src="assets/images/properties/prop-1.jpg" 
-                                 data-srcset="assets/images/properties/prop-1.jpg 300w, assets/images/properties/prop-1-large.jpg 600w"
+                            <source data-srcset="assets/images/properties/prop-2.webp" type="image/webp">
+                            <img data-src="assets/images/properties/prop-2.jpg" 
                                  src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" 
-                                 alt="Modern apartment building in Coventry city centre" 
+                                 alt="Victorian terraced house in Coventry" 
                                  loading="lazy" 
                                  class="lazy" 
                                  width="300" 
-                                 height="200"
-                                 sizes="(max-width: 768px) 280px, 300px">
+                                 height="200">
                         </picture>
                         <div class="property-info">
                             <h4>Modern Flat</h4>

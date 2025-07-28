@@ -48,6 +48,52 @@
     border: 0;
 }
 
+/* Image Loading Optimization Styles */
+img {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+img.lazy {
+    opacity: 0;
+    background-color: var(--light-gray);
+}
+
+img.loading {
+    opacity: 0.5;
+    background-color: var(--light-gray);
+    background-image: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+img.loaded {
+    opacity: 1;
+}
+
+img.error {
+    opacity: 1;
+    background-color: var(--light-gray);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23999' viewBox='0 0 24 24'%3E%3Cpath d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 48px 48px;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
 /* Update font family to Inter, fallback to DM Sans */
 body {
     font-family: 'Lato', Arial, sans-serif;
@@ -249,6 +295,38 @@ p {
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
+}
+
+/* WebP support with CSS fallback */
+.webp .hero-background {
+    background-image: linear-gradient(rgba(35, 97, 61, 0.4), rgba(35, 97, 61, 0.4)),
+                      url('assets/images/hero/hero-home.webp');
+}
+
+/* Responsive hero background images for better performance */
+@media (max-width: 768px) {
+    .hero-background {
+        background-image: linear-gradient(rgba(35, 97, 61, 0.4), rgba(35, 97, 61, 0.4)),
+                          url('assets/images/hero/hero-home-small.jpg');
+        background-attachment: scroll; /* Better performance on mobile */
+    }
+    
+    .webp .hero-background {
+        background-image: linear-gradient(rgba(35, 97, 61, 0.4), rgba(35, 97, 61, 0.4)),
+                          url('assets/images/hero/hero-home-small.webp');
+    }
+}
+
+@media (min-width: 1200px) {
+    .hero-background {
+        background-image: linear-gradient(rgba(35, 97, 61, 0.4), rgba(35, 97, 61, 0.4)),
+                          url('assets/images/hero/hero-home-large.jpg');
+    }
+    
+    .webp .hero-background {
+        background-image: linear-gradient(rgba(35, 97, 61, 0.4), rgba(35, 97, 61, 0.4)),
+                          url('assets/images/hero/hero-home-large.webp');
+    }
 }
 
 .hero-content {
