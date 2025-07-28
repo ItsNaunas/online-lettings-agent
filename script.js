@@ -72,6 +72,8 @@ const OnlineLettingAgents = (() => {
         // Initialize common functionality
         initNavigation();
         initScrollAnimations();
+        preloadCriticalImages();
+        registerServiceWorker();
         if (typeof initLazyLoading === 'function') {
             initLazyLoading();
         }
@@ -509,37 +511,12 @@ function goToPropertySlide(n) {
         animatedElements.forEach(el => observer.observe(el));
     }
     
-    // Initialize lazy loading
-    function initLazyLoading() {
-        // Only initialize if Intersection Observer is supported
-        if ('IntersectionObserver' in window) {
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        if (img.dataset.src) {
-                            img.src = img.dataset.src;
-                            img.classList.remove('lazy');
-                            observer.unobserve(img);
-                        }
-                    }
-                });
-            });
-            
-            document.querySelectorAll('img.lazy').forEach(img => {
-                imageObserver.observe(img);
-            });
-        }
-    }
-    // Enhanced lazy loading with better performance
+    // Enhanced lazy loading with better performance and WebP support
     function initLazyLoading() {
         if (!('IntersectionObserver' in window)) {
             // Fallback for older browsers
-            document.querySelectorAll('img.lazy').forEach(img => {
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                    img.classList.remove('lazy');
-                }
+            document.querySelectorAll('img.lazy, img[data-src]').forEach(img => {
+                loadImage(img);
             });
             return;
         }
@@ -548,41 +525,13 @@ function goToPropertySlide(n) {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const img = entry.target;
-                    
-                    // Handle both img elements and picture sources
-                    if (img.dataset.src) {
-                        img.src = img.dataset.src;
-                    }
-                    
-                    // Handle srcset for responsive images
-                    if (img.dataset.srcset) {
-                        img.srcset = img.dataset.srcset;
-                    }
-                    
-                    // Handle picture sources
-                    const picture = img.closest('picture');
-                    if (picture) {
-                        const sources = picture.querySelectorAll('source[data-srcset]');
-                        sources.forEach(source => {
-                            source.srcset = source.dataset.srcset;
-                        });
-                    }
-                    
-                    img.classList.remove('lazy');
-                    img.classList.add('loaded');
+                    loadImage(img);
                     observer.unobserve(img);
-                    
-                    // Add fade-in effect
-                    img.style.opacity = '0';
-                    img.style.transition = 'opacity 0.3s ease';
-                    img.onload = () => {
-                        img.style.opacity = '1';
-                    };
                 }
             });
         }, {
-            // Load images 50px before they enter the viewport
-            rootMargin: '50px 0px',
+            // Load images 100px before they enter the viewport for smoother experience
+            rootMargin: '100px 0px',
             threshold: 0.01
         });
         
@@ -590,6 +539,85 @@ function goToPropertySlide(n) {
         document.querySelectorAll('img.lazy, img[data-src]').forEach(img => {
             imageObserver.observe(img);
         });
+    }
+
+    // Helper function to load images with WebP support and fade-in effect
+    function loadImage(img) {
+        // Handle picture sources first
+        const picture = img.closest('picture');
+        if (picture) {
+            const sources = picture.querySelectorAll('source[data-srcset]');
+            sources.forEach(source => {
+                source.srcset = source.dataset.srcset;
+                source.removeAttribute('data-srcset');
+            });
+        }
+        
+        // Handle img element
+        const src = img.dataset.src || img.getAttribute('data-src');
+        const srcset = img.dataset.srcset || img.getAttribute('data-srcset');
+        
+        if (src || srcset) {
+            // Add loading state
+            img.classList.add('loading');
+            
+            // Create a temporary image to preload
+            const tempImg = new Image();
+            
+            tempImg.onload = () => {
+                // Apply the source
+                if (src) img.src = src;
+                if (srcset) img.srcset = srcset;
+                
+                // Remove lazy loading attributes
+                img.removeAttribute('data-src');
+                img.removeAttribute('data-srcset');
+                img.classList.remove('lazy', 'loading');
+                img.classList.add('loaded');
+                
+                // Fade in effect
+                img.style.opacity = '1';
+            };
+            
+            tempImg.onerror = () => {
+                // Fallback if image fails to load
+                img.classList.remove('lazy', 'loading');
+                img.classList.add('error');
+            };
+            
+            // Start loading
+            if (srcset) tempImg.srcset = srcset;
+            if (src) tempImg.src = src;
+        }
+    }
+
+    // Preload critical images
+    function preloadCriticalImages() {
+        const criticalImages = [
+            'assets/images/hero/hero-home.webp',
+            'assets/images/hero/hero-home.jpg'
+        ];
+        
+        criticalImages.forEach(src => {
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = 'image';
+            link.href = src;
+            document.head.appendChild(link);
+        });
+    }
+
+    // Register service worker for image caching
+    function registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered successfully:', registration.scope);
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
     }
 
 // Close modals when clicking outside
